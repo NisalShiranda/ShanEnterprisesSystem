@@ -2,20 +2,20 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
-// Pages (to be created)
-const LoginPage = () => <div className="p-10 text-center text-3xl">Login Page</div>;
-const RegisterPage = () => <div className="p-10 text-center text-3xl">Register Page</div>;
-const Dashboard = () => <div className="p-10 text-center text-3xl">Dashboard</div>;
-const Machines = () => <div className="p-10 text-center text-3xl">Machines</div>;
-const Parts = () => <div className="p-10 text-center text-3xl">Parts</div>;
-const Sales = () => <div className="p-10 text-center text-3xl">Sales</div>;
-const Rentals = () => <div className="p-10 text-center text-3xl">Rentals</div>;
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import Dashboard from './pages/Dashboard';
+import Machines from './pages/Machines';
+import Parts from './pages/Parts';
+import Sales from './pages/Sales';
+import Rentals from './pages/Rentals';
+import Layout from './components/Layout';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return <div>Loading...</div>;
   if (!user) return <Navigate to="/login" />;
-  return children;
+  return <Layout>{children}</Layout>;
 };
 
 function App() {
