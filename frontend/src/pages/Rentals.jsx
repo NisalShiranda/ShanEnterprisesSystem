@@ -64,9 +64,9 @@ const Rentals = () => {
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition shadow-md"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl hover:bg-slate-800 transition-all shadow-md active:scale-95 font-bold text-xs uppercase tracking-widest"
                 >
-                    <Plus size={20} />
+                    <Plus size={16} strokeWidth={3} />
                     New Rental
                 </button>
             </div>
@@ -80,8 +80,8 @@ const Rentals = () => {
                     <div key={rental._id} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition">
                         <div className="p-6 border-b border-slate-50">
                             <div className="flex justify-between items-start mb-4">
-                                <div className="p-3 bg-accent bg-opacity-10 text-accent rounded-lg">
-                                    <HardHat size={24} />
+                                <div className="p-3 bg-white border border-slate-100 border-b-4 border-b-slate-900 text-slate-900 rounded-xl shadow-sm">
+                                    <HardHat size={20} />
                                 </div>
                                 <span className={`px-3 py-1 text-xs font-bold rounded-full ${rental.status === 'Active' ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-600'
                                     }`}>
@@ -102,7 +102,7 @@ const Rentals = () => {
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-500">Next Renewal:</span>
-                                <span className="font-bold text-blue-600">{new Date(rental.nextRenewalDate).toLocaleDateString()}</span>
+                                <span className="font-bold text-slate-900 italic underline decoration-slate-300">{new Date(rental.nextRenewalDate).toLocaleDateString()}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-slate-500">Monthly Rate:</span>
@@ -139,7 +139,7 @@ const Rentals = () => {
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Customer Name</label>
                                 <input
                                     type="text" required
-                                    className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition text-sm shadow-inner"
                                     value={formData.customerName}
                                     onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
                                     placeholder="Enter customer name"
@@ -171,7 +171,7 @@ const Rentals = () => {
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Start Date</label>
                                     <input
                                         type="date" required
-                                        className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-primary"
+                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition text-sm shadow-inner"
                                         value={formData.startDate}
                                         onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                                     />
@@ -180,7 +180,7 @@ const Rentals = () => {
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Monthly Rate</label>
                                     <input
                                         type="number" required
-                                        className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-primary"
+                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition text-sm shadow-inner"
                                         value={formData.monthlyRate}
                                         onChange={(e) => setFormData({ ...formData, monthlyRate: e.target.value })}
                                     />
@@ -196,7 +196,7 @@ const Rentals = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="flex-1 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition font-bold"
+                                    className="flex-1 py-3 bg-black text-white rounded-xl hover:bg-slate-800 transition-all font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-200"
                                 >
                                     Start Rental
                                 </button>

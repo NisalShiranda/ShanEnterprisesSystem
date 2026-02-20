@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { ShoppingCart, Plus, Minus, Trash2, Printer, CheckCircle } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Trash2, Printer, CheckCircle, Package, HardHat, Search } from 'lucide-react';
 
 const Sales = () => {
     const [parts, setParts] = useState([]);
+    const [machines, setMachines] = useState([]);
+    const [activeTab, setActiveTab] = useState('parts'); // 'parts' or 'machines'
+    const [searchTerm, setSearchTerm] = useState('');
     const [cart, setCart] = useState([]);
     const [customerName, setCustomerName] = useState('');
     const [dueAmount, setDueAmount] = useState(0);
@@ -11,28 +14,43 @@ const Sales = () => {
     const [success, setSuccess] = useState(null);
 
     useEffect(() => {
-        const fetchParts = async () => {
-            const { data } = await api.get('/parts');
-            setParts(data);
+        const fetchData = async () => {
+            try {
+                const [partsRes, machinesRes] = await Promise.all([
+                    api.get('/parts'),
+                    api.get('/machines')
+                ]);
+                setParts(partsRes.data);
+                setMachines(machinesRes.data);
+            } catch (err) {
+                console.error('Error fetching inventory:', err);
+            }
         };
-        fetchParts();
+        fetchData();
     }, []);
 
-    const addToCart = (part) => {
-        const existing = cart.find(item => item.part === part._id);
+    const addToCart = (item, type) => {
+        const existing = cart.find(i => i.id === item._id);
         if (existing) {
-            if (existing.quantity >= part.stock) return alert('Out of stock');
-            setCart(cart.map(item =>
-                item.part === part._id ? { ...item, quantity: item.quantity + 1 } : item
+            if (existing.quantity >= item.stock) return alert('Out of stock');
+            setCart(cart.map(i =>
+                i.id === item._id ? { ...i, quantity: i.quantity + 1 } : i
             ));
         } else {
-            setCart([...cart, { part: part._id, name: part.name, price: part.price, quantity: 1, maxStock: part.stock }]);
+            setCart([...cart, {
+                id: item._id,
+                name: item.name,
+                price: item.price,
+                quantity: 1,
+                maxStock: item.stock,
+                type: type
+            }]);
         }
     };
 
     const updateQty = (id, delta) => {
         setCart(cart.map(item => {
-            if (item.part === id) {
+            if (item.id === id) {
                 const newQty = item.quantity + delta;
                 if (newQty > 0 && newQty <= item.maxStock) {
                     return { ...item, quantity: newQty };
@@ -43,7 +61,7 @@ const Sales = () => {
     };
 
     const removeFromCart = (id) => {
-        setCart(cart.filter(item => item.part !== id));
+        setCart(cart.filter(item => item.id !== id));
     };
 
     const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
@@ -56,7 +74,13 @@ const Sales = () => {
         try {
             const { data } = await api.post('/sales', {
                 customerName,
-                items: cart,
+                items: cart.map(i => ({
+                    part: i.type === 'part' ? i.id : null,
+                    machine: i.type === 'machine' ? i.id : null,
+                    name: i.name,
+                    price: i.price,
+                    quantity: i.quantity
+                })),
                 dueAmount
             });
             setSuccess(data);
@@ -76,185 +100,243 @@ const Sales = () => {
 
     if (success) {
         return (
-            <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-slate-100 print:shadow-none print:border-none print:p-0">
+            <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-100 print:shadow-none print:border-none print:p-0">
                 <div className="flex items-center justify-between mb-8 print:hidden">
-                    <div className="flex items-center gap-2 text-green-600 font-bold">
-                        <CheckCircle size={24} />
-                        Sale Successful!
+                    <div className="flex items-center gap-2 text-emerald-600 font-black text-sm uppercase tracking-widest">
+                        <CheckCircle size={20} />
+                        Transaction Completed
                     </div>
                     <button
                         onClick={() => setSuccess(null)}
-                        className="text-slate-500 hover:text-slate-700 font-medium"
+                        className="text-slate-400 hover:text-black font-bold text-xs uppercase tracking-widest transition-colors"
                     >
-                        New Sale
+                        + New Entry
                     </button>
                 </div>
 
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-slate-800">SHAN ENTERPRISES</h1>
-                    <p className="text-slate-500 uppercase tracking-widest text-sm font-bold mt-1">Sales Invoice / Gate Pass</p>
-                    <div className="mt-4 border-t border-b border-slate-100 py-2 text-sm text-slate-600 flex justify-between px-4">
-                        <span>Date: {new Date(success.createdAt).toLocaleString()}</span>
-                        <span>Inv #: {success._id.slice(-6).toUpperCase()}</span>
+                <div className="text-center mb-10">
+                    <img src="/logo.jpeg" alt="Logo" className="h-20 mx-auto mb-4 object-contain" />
+                    <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">SHAN ENTERPRISES</h1>
+                    <p className="text-slate-400 uppercase tracking-[0.3em] text-[10px] font-black mt-1">Official Sales Invoice</p>
+                    <div className="mt-6 flex justify-between border-y border-slate-50 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2">
+                        <span>Date: {new Date(success.createdAt).toLocaleDateString()}</span>
+                        <span>Invoice: #{success._id.slice(-6).toUpperCase()}</span>
                     </div>
                 </div>
 
-                <div className="mb-6">
-                    <p className="text-sm text-slate-500 uppercase font-bold mb-1">Bill To:</p>
-                    <p className="text-lg font-bold text-slate-800">{success.customerName}</p>
+                <div className="mb-8 px-2">
+                    <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Customer / Consignee</p>
+                    <p className="text-lg font-black text-slate-900 tracking-tight">{success.customerName}</p>
                 </div>
 
-                <table className="w-full mb-8">
-                    <thead className="border-b border-slate-200">
-                        <tr>
-                            <th className="py-2 text-left text-slate-500 uppercase text-xs">Item</th>
-                            <th className="py-2 text-center text-slate-500 uppercase text-xs">Qty</th>
-                            <th className="py-2 text-right text-slate-500 uppercase text-xs">Price</th>
-                            <th className="py-2 text-right text-slate-500 uppercase text-xs">Total</th>
+                <table className="w-full mb-10">
+                    <thead>
+                        <tr className="border-b border-slate-900">
+                            <th className="py-4 text-left text-[10px] font-black text-slate-900 uppercase tracking-widest">Description</th>
+                            <th className="py-4 text-center text-[10px] font-black text-slate-900 uppercase tracking-widest">Qty</th>
+                            <th className="py-4 text-right text-[10px] font-black text-slate-900 uppercase tracking-widest">Unit Price</th>
+                            <th className="py-4 text-right text-[10px] font-black text-slate-900 uppercase tracking-widest">Total</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-slate-50">
                         {success.items.map((item, idx) => (
                             <tr key={idx}>
-                                <td className="py-3 text-slate-800 font-medium">{item.name}</td>
-                                <td className="py-3 text-center text-slate-600">{item.quantity}</td>
-                                <td className="py-3 text-right text-slate-600">{item.price.toLocaleString()}</td>
-                                <td className="py-3 text-right text-slate-800 font-bold">{(item.price * item.quantity).toLocaleString()}</td>
+                                <td className="py-4 text-sm font-bold text-slate-800 tracking-tight">{item.name}</td>
+                                <td className="py-4 text-center text-sm font-medium text-slate-600">{item.quantity}</td>
+                                <td className="py-4 text-right text-sm font-medium text-slate-600">{item.price.toLocaleString()}</td>
+                                <td className="py-4 text-right text-sm font-black text-slate-900">{(item.price * item.quantity).toLocaleString()}</td>
                             </tr>
                         ))}
                     </tbody>
                     <tfoot>
-                        <tr className="border-t-2 border-slate-200">
-                            <td colSpan="3" className="py-4 text-right font-bold text-slate-700">SUB TOTAL</td>
-                            <td className="py-4 text-right font-bold text-slate-900 text-lg">LKR {success.totalAmount.toLocaleString()}</td>
+                        <tr className="border-t-2 border-slate-900">
+                            <td colSpan="3" className="py-5 text-right font-black text-slate-900 text-xs uppercase tracking-widest">Grand Total</td>
+                            <td className="py-5 text-right font-black text-slate-900 text-xl tracking-tighter italic">LKR {success.totalAmount.toLocaleString()}</td>
                         </tr>
                         {success.dueAmount > 0 && (
                             <tr>
-                                <td colSpan="3" className="py-1 text-right font-medium text-red-500">DUE AMOUNT</td>
-                                <td className="py-1 text-right font-bold text-red-600">LKR {success.dueAmount.toLocaleString()}</td>
+                                <td colSpan="3" className="py-1 text-right font-bold text-rose-500 text-[10px] uppercase tracking-widest">Total Due</td>
+                                <td className="py-1 text-right font-black text-rose-600 text-sm tracking-tight italic">LKR {success.dueAmount.toLocaleString()}</td>
                             </tr>
                         )}
                     </tfoot>
                 </table>
 
-                <div className="grid grid-cols-2 gap-8 mt-12 mb-8 items-end">
-                    <div className="border-t border-slate-300 pt-2 text-center">
-                        <p className="text-xs text-slate-500 uppercase">Customer Signature</p>
+                <div className="grid grid-cols-2 gap-12 mt-16 mb-12 items-end px-4">
+                    <div className="border-t-2 border-slate-900 pt-3 text-center">
+                        <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest">Client Acknowledgement</p>
                     </div>
-                    <div className="border-t border-slate-300 pt-2 text-center">
-                        <p className="text-xs text-slate-500 uppercase">Authorized Signature</p>
+                    <div className="border-t-2 border-slate-900 pt-3 text-center">
+                        <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest">Authorized Signature</p>
                     </div>
                 </div>
 
-                <div className="mt-8 pt-8 border-t border-slate-100 text-center text-slate-400 text-xs hidden print:block">
-                    Thank you for your business! This is a computer generated invoice.
+                <div className="mt-12 pt-8 border-t border-slate-50 text-center text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em] hidden print:block">
+                    Valid for 30 days. Software provided by Shan Enterprises Systems.
                 </div>
 
                 <button
                     onClick={handlePrint}
-                    className="w-full py-3 bg-secondary text-white rounded-lg flex items-center justify-center gap-2 hover:bg-slate-800 transition print:hidden font-bold"
+                    className="w-full py-4 bg-black text-white rounded-2xl flex items-center justify-center gap-3 hover:bg-slate-800 transition-all print:hidden font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-200"
                 >
-                    <Printer size={20} />
+                    <Printer size={18} />
                     Print Invoice & Gate Pass
                 </button>
             </div>
         );
     }
 
+    const filteredItems = (activeTab === 'parts' ? parts : machines).filter(i =>
+        i.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        i.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-slate-800">New Sale</h1>
-                    <p className="text-slate-500">Select parts to generate a sales invoice</p>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Catalog Section */}
+            <div className="lg:col-span-8 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-xl font-black text-slate-900 tracking-tight uppercase">New Transaction</h1>
+                        <p className="text-xs text-slate-400 font-bold tracking-widest uppercase">Select assets to generate a bill</p>
+                    </div>
+
+                    {/* Catalog Toggles */}
+                    <div className="flex p-1 bg-slate-100 rounded-xl">
+                        <button
+                            onClick={() => setActiveTab('parts')}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'parts' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
+                            <Package size={14} />
+                            Parts
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('machines')}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'machines' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
+                            <HardHat size={14} />
+                            Machines
+                        </button>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {parts.map(part => (
+                {/* Sub-Search */}
+                <div className="relative group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-black transition-colors" size={16} />
+                    <input
+                        type="text"
+                        placeholder={`Search ${activeTab === 'parts' ? 'spare parts' : 'heavy machinery'}...`}
+                        className="w-full bg-white border border-slate-100 rounded-2xl py-3 pl-12 pr-4 text-sm font-medium outline-none focus:ring-4 focus:ring-slate-50 focus:border-slate-200 transition-all shadow-sm"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-200">
+                    {filteredItems.map(item => (
                         <div
-                            key={part._id}
-                            className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center hover:shadow-md transition cursor-pointer"
-                            onClick={() => addToCart(part)}
+                            key={item._id}
+                            className="group bg-white p-5 rounded-2xl border border-slate-100 flex justify-between items-center hover:border-slate-300 hover:shadow-lg transition-all cursor-pointer relative overflow-hidden"
+                            onClick={() => addToCart(item, activeTab === 'parts' ? 'part' : 'machine')}
                         >
-                            <div>
-                                <p className="font-bold text-slate-800">{part.name}</p>
-                                <p className="text-sm text-slate-500">{part.category} • Stock: {part.stock}</p>
-                                <p className="text-primary font-bold mt-1">LKR {part.price.toLocaleString()}</p>
+                            <div className="relative z-10">
+                                <p className="font-black text-slate-900 tracking-tight">{item.name}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.category}</span>
+                                    <span className="w-1 h-1 bg-slate-200 rounded-full" />
+                                    <span className={`text-[10px] font-black uppercase tracking-widest ${item.stock < 5 ? 'text-rose-500' : 'text-emerald-500'}`}>Stock: {item.stock}</span>
+                                </div>
+                                <p className="text-slate-900 font-black mt-3 text-sm italic border-l-4 border-slate-900 pl-3">LKR {item.price.toLocaleString()}</p>
                             </div>
-                            <button
-                                className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition"
-                            >
-                                <Plus size={20} />
+                            <button className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-lg group-hover:scale-110 active:scale-90 transition-all transform">
+                                <Plus size={20} strokeWidth={3} />
                             </button>
                         </div>
                     ))}
+                    {filteredItems.length === 0 && (
+                        <div className="col-span-full py-12 text-center bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 font-bold text-slate-400 text-sm uppercase tracking-widest">
+                            No {activeTab} available matching search
+                        </div>
+                    )}
                 </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-100 h-fit sticky top-24">
-                <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                    <ShoppingCart size={24} className="text-primary" />
-                    Shopping Cart
-                </h2>
+            {/* Cart Section */}
+            <div className="lg:col-span-4 bg-white p-6 rounded-3xl border border-slate-100 shadow-xl h-fit sticky top-24">
+                <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <ShoppingCart size={18} className="text-slate-900" />
+                        Quick Bill
+                    </h2>
+                    <span className="px-2 py-1 bg-slate-900 text-white text-[10px] font-black rounded-lg">{cart.length}</span>
+                </div>
 
                 {cart.length === 0 ? (
-                    <div className="text-center py-10 text-slate-400 italic">
-                        Cart is empty. Select items to start.
+                    <div className="text-center py-16">
+                        <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                            <ShoppingCart size={20} className="text-slate-300" />
+                        </div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cart is empty</p>
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit}>
-                        <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
                             {cart.map(item => (
-                                <div key={item.part} className="flex justify-between items-center bg-slate-50 p-3 rounded-lg">
-                                    <div className="flex-1">
-                                        <p className="text-sm font-bold text-slate-800">{item.name}</p>
-                                        <p className="text-xs text-slate-500">LKR {item.price.toLocaleString()} ea</p>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex items-center gap-2 bg-white border rounded-md p-1">
-                                            <button type="button" onClick={() => updateQty(item.part, -1)} className="text-slate-400 hover:text-red-500"><Minus size={14} /></button>
-                                            <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
-                                            <button type="button" onClick={() => updateQty(item.part, 1)} className="text-slate-400 hover:text-primary"><Plus size={14} /></button>
+                                <div key={item.id} className="flex flex-col bg-slate-50 p-4 rounded-2xl border border-slate-100 transition-all hover:bg-white hover:border-slate-200">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex-1">
+                                            <p className="text-xs font-black text-slate-900 leading-tight uppercase tracking-tight">{item.name}</p>
+                                            <p className="text-[10px] text-slate-400 font-bold mt-0.5 tracking-widest uppercase">{item.type}s</p>
                                         </div>
-                                        <button type="button" onClick={() => removeFromCart(item.part)} className="text-slate-300 hover:text-red-500 transition"><Trash2 size={18} /></button>
+                                        <button type="button" onClick={() => removeFromCart(item.id)} className="text-slate-300 hover:text-rose-500 transition-colors">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-3 bg-white border border-slate-100 rounded-xl p-1 shadow-sm">
+                                            <button type="button" onClick={() => updateQty(item.id, -1)} className="p-1 text-slate-400 hover:text-black transition-colors"><Minus size={12} strokeWidth={3} /></button>
+                                            <span className="text-xs font-black w-6 text-center">{item.quantity}</span>
+                                            <button type="button" onClick={() => updateQty(item.id, 1)} className="p-1 text-slate-400 hover:text-black transition-colors"><Plus size={12} strokeWidth={3} /></button>
+                                        </div>
+                                        <span className="text-xs font-black text-slate-900 tracking-tight italic">LKR {(item.price * item.quantity).toLocaleString()}</span>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="space-y-4 border-t pt-4">
+                        <div className="space-y-4 pt-6 border-t border-slate-100">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Customer Name</label>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Customer / Party Name</label>
                                 <input
                                     type="text" required
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition-all text-xs font-bold"
                                     value={customerName}
                                     onChange={(e) => setCustomerName(e.target.value)}
-                                    placeholder="Enter customer name"
+                                    placeholder="Full name or company..."
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Due Amount (Optional)</label>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 text-rose-500">Credit / Due Amount</label>
                                 <input
                                     type="number"
-                                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-primary"
+                                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-rose-50 focus:border-rose-100 transition-all text-xs font-bold text-rose-600"
                                     value={dueAmount}
                                     onChange={(e) => setDueAmount(Number(e.target.value))}
                                     placeholder="0.00"
                                 />
                             </div>
 
-                            <div className="flex justify-between items-center py-4 border-b">
-                                <span className="text-slate-500 font-bold">Total Amount</span>
-                                <span className="text-2xl font-bold text-slate-800 underline decoration-primary decoration-4">LKR {total.toLocaleString()}</span>
+                            <div className="pt-4 flex flex-col items-center">
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Grand Total (payable)</span>
+                                <span className="text-2xl font-black text-slate-900 border-b-4 border-slate-900 tracking-tighter italic">LKR {total.toLocaleString()}</span>
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 bg-primary text-white rounded-xl font-bold shadow-lg hover:bg-blue-600 transition disabled:opacity-50"
+                                className="w-full py-4 bg-black text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50"
                             >
-                                {loading ? 'Processing Sale...' : 'Review & Generate Invoice'}
+                                {loading ? 'Processing Order...' : 'Confirm & Finalize Bill'}
                             </button>
                         </div>
                     </form>

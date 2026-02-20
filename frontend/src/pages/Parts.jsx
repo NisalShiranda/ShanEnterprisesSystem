@@ -67,9 +67,9 @@ const Parts = () => {
                 </div>
                 <button
                     onClick={() => setShowModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition shadow-md"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-black text-white rounded-xl hover:bg-slate-800 transition-all shadow-md active:scale-95 font-bold text-xs uppercase tracking-widest"
                 >
-                    <Plus size={20} />
+                    <Plus size={16} strokeWidth={3} />
                     Add Part
                 </button>
             </div>
@@ -81,7 +81,7 @@ const Parts = () => {
                         <input
                             type="text"
                             placeholder="Search by name or category..."
-                            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+                            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 outline-none transition text-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -112,7 +112,7 @@ const Parts = () => {
                                 <tr key={part._id} className="hover:bg-slate-50 transition">
                                     <td className="px-6 py-4 font-medium text-slate-800">{part.name}</td>
                                     <td className="px-6 py-4">
-                                        <span className="px-2 py-1 bg-yellow-50 text-yellow-600 text-xs font-bold rounded-full">
+                                        <span className="px-2 py-1 bg-amber-50 text-amber-600 text-[10px] font-black uppercase tracking-wider rounded-md">
                                             {part.category}
                                         </span>
                                     </td>
@@ -123,8 +123,8 @@ const Parts = () => {
                                     </td>
                                     <td className="px-6 py-4 font-medium text-slate-700">LKR {part.price?.toLocaleString()}</td>
                                     <td className="px-6 py-4 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <button className="p-2 text-slate-400 hover:text-primary transition"><Edit2 size={18} /></button>
+                                        <div className="flex justify-end gap-2 text-slate-400">
+                                            <button className="p-2 hover:text-black transition hover:bg-slate-100 rounded-lg"><Edit2 size={16} /></button>
                                             <button onClick={() => handleDelete(part._id)} className="p-2 text-slate-400 hover:text-red-500 transition"><Trash2 size={18} /></button>
                                         </div>
                                     </td>
@@ -148,7 +148,7 @@ const Parts = () => {
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Part Name</label>
                                     <input
                                         type="text" required
-                                        className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-primary"
+                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition text-sm"
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     />
@@ -157,7 +157,7 @@ const Parts = () => {
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
                                     <input
                                         type="text" required
-                                        className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-primary"
+                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition text-sm"
                                         value={formData.category}
                                         onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                                     />
@@ -166,7 +166,7 @@ const Parts = () => {
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Stock</label>
                                     <input
                                         type="number" required
-                                        className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-primary"
+                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition text-sm"
                                         value={formData.stock}
                                         onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
                                     />
@@ -175,7 +175,7 @@ const Parts = () => {
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Unit Price</label>
                                     <input
                                         type="number" required
-                                        className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-primary"
+                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition text-sm"
                                         value={formData.price}
                                         onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                                     />
@@ -199,7 +199,7 @@ const Parts = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition font-bold"
+                                    className="px-8 py-2.5 bg-black text-white rounded-xl hover:bg-slate-800 transition-all font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-slate-200"
                                 >
                                     Save Part
                                 </button>

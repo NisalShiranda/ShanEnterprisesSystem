@@ -7,9 +7,9 @@ export default {
     theme: {
         extend: {
             colors: {
-                primary: '#3b82f6',
+                primary: '#000000',
                 secondary: '#1e293b',
-                accent: '#fbbf24',
+                accent: '#d4af37', // Metallic Gold to match logo
             }
         },
     },
