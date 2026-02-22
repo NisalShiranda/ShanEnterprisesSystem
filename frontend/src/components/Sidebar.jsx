@@ -17,7 +17,6 @@ const Sidebar = () => {
     const navItems = [
         { name: 'Overview', path: '/', icon: LayoutDashboard },
         { name: 'Inventory', path: '/machines', icon: HardHat },
-        { name: 'Components', path: '/parts', icon: Package },
         { name: 'Sales Hub', path: '/sales', icon: ShoppingCart },
         { name: 'Rentals', path: '/rentals', icon: CalendarDays },
     ];

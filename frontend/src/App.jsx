@@ -38,12 +38,6 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/parts" element={
-            <ProtectedRoute>
-              <Parts />
-            </ProtectedRoute>
-          } />
-
           <Route path="/sales" element={
             <ProtectedRoute>
               <Sales />

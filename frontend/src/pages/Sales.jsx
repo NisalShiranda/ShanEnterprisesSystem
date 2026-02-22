@@ -187,8 +187,7 @@ const Sales = () => {
     }
 
     const filteredItems = (activeTab === 'parts' ? parts : machines).filter(i =>
-        i.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        i.category.toLowerCase().includes(searchTerm.toLowerCase())
+        i.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -242,8 +241,6 @@ const Sales = () => {
                             <div className="relative z-10">
                                 <p className="font-black text-slate-900 tracking-tight">{item.name}</p>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.category}</span>
-                                    <span className="w-1 h-1 bg-slate-200 rounded-full" />
                                     <span className={`text-[10px] font-black uppercase tracking-widest ${item.stock < 5 ? 'text-rose-500' : 'text-emerald-500'}`}>Stock: {item.stock}</span>
                                 </div>
                                 <p className="text-slate-900 font-black mt-3 text-sm italic border-l-4 border-slate-900 pl-3">LKR {item.price.toLocaleString()}</p>
