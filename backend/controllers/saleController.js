@@ -1,5 +1,6 @@
 const Sale = require('../models/Sale');
 const Part = require('../models/Part');
+const Machine = require('../models/Machine');
 
 // @desc    Create new sale
 // @route   POST /api/sales
@@ -15,50 +16,63 @@ const createSale = async (req, res) => {
     let totalAmount = 0;
     let totalProfit = 0;
 
-    // Process items and calculate totals
-    const processedItems = await Promise.all(
-        items.map(async (item) => {
-            const part = await Part.findById(item.part);
-            if (!part) {
-                throw new Error(`Part not found: ${item.part}`);
-            }
+    try {
+        // Process items and calculate totals
+        const processedItems = await Promise.all(
+            items.map(async (item) => {
+                let inventoryItem;
+                let itemType;
 
-            if (part.stock < item.quantity) {
-                throw new Error(`Insufficient stock for part: ${part.name}`);
-            }
+                if (item.part) {
+                    inventoryItem = await Part.findById(item.part);
+                    itemType = 'part';
+                } else if (item.machine) {
+                    inventoryItem = await Machine.findById(item.machine);
+                    itemType = 'machine';
+                }
 
-            // Update stock
-            part.stock -= item.quantity;
-            await part.save();
+                if (!inventoryItem) {
+                    throw new Error(`Item not found: ${item.part || item.machine}`);
+                }
 
-            const itemTotal = part.price * item.quantity;
-            // Assuming profit is a fixed percentage or based on cost price (not yet in model, using 20% default for now if cost not available)
-            // Ideally part model should have costPrice. For now, let's assume price is selling price.
-            const itemProfit = itemTotal * 0.2; // Placeholder profit calculation
+                if (inventoryItem.stock < item.quantity) {
+                    throw new Error(`Insufficient stock for: ${inventoryItem.name}`);
+                }
 
-            totalAmount += itemTotal;
-            totalProfit += itemProfit;
+                // Update stock
+                inventoryItem.stock -= item.quantity;
+                await inventoryItem.save();
 
-            return {
-                part: item.part,
-                name: part.name,
-                quantity: item.quantity,
-                price: part.price,
-            };
-        })
-    );
+                const itemTotal = inventoryItem.price * item.quantity;
+                const itemProfit = itemTotal * 0.2; // 20% default profit
 
-    const sale = new Sale({
-        customerName,
-        items: processedItems,
-        totalAmount,
-        profit: totalProfit,
-        dueAmount: dueAmount || 0,
-        paymentStatus: dueAmount > 0 ? 'Partial' : 'Paid',
-    });
+                totalAmount += itemTotal;
+                totalProfit += itemProfit;
 
-    const createdSale = await sale.save();
-    res.status(201).json(createdSale);
+                return {
+                    part: itemType === 'part' ? item.part : undefined,
+                    machine: itemType === 'machine' ? item.machine : undefined,
+                    name: inventoryItem.name,
+                    quantity: item.quantity,
+                    price: inventoryItem.price,
+                };
+            })
+        );
+
+        const sale = new Sale({
+            customerName,
+            items: processedItems,
+            totalAmount,
+            profit: totalProfit,
+            dueAmount: dueAmount || 0,
+            paymentStatus: dueAmount > 0 ? 'Partial' : 'Paid',
+        });
+
+        const createdSale = await sale.save();
+        res.status(201).json(createdSale);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
 };
 
 // @desc    Get all sales
@@ -73,7 +87,7 @@ const getSales = async (req, res) => {
 // @route   GET /api/sales/:id
 // @access  Private
 const getSaleById = async (req, res) => {
-    const sale = await Sale.findById(req.params.id).populate('items.part', 'name category');
+    const sale = await Sale.findById(req.params.id).populate('items.part items.machine', 'name category');
 
     if (sale) {
         res.json(sale);

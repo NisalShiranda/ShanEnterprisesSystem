@@ -10,8 +10,13 @@ const saleSchema = mongoose.Schema(
             {
                 part: {
                     type: mongoose.Schema.Types.ObjectId,
-                    required: true,
+                    required: false,
                     ref: 'Part',
+                },
+                machine: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    required: false,
+                    ref: 'Machine',
                 },
                 name: { type: String, required: true },
                 quantity: { type: Number, required: true },
