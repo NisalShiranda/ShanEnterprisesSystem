@@ -5,7 +5,7 @@ import { ShoppingCart, Plus, Minus, Trash2, Printer, CheckCircle, Package, HardH
 const Sales = () => {
     const [parts, setParts] = useState([]);
     const [machines, setMachines] = useState([]);
-    const [activeTab, setActiveTab] = useState('parts'); // 'parts' or 'machines'
+    const [activeTab, setActiveTab] = useState('machines'); // 'machines' or 'parts'
     const [searchTerm, setSearchTerm] = useState('');
     const [cart, setCart] = useState([]);
     const [customerName, setCustomerName] = useState('');
@@ -203,18 +203,18 @@ const Sales = () => {
                     {/* Catalog Toggles */}
                     <div className="flex p-1 bg-slate-100 rounded-xl">
                         <button
-                            onClick={() => setActiveTab('parts')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'parts' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
-                        >
-                            <Package size={14} />
-                            Parts
-                        </button>
-                        <button
                             onClick={() => setActiveTab('machines')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'machines' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
                         >
                             <HardHat size={14} />
                             Machines
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('parts')}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'parts' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                        >
+                            <Package size={14} />
+                            Parts
                         </button>
                     </div>
                 </div>

@@ -4,8 +4,15 @@ const Part = require('../models/Part');
 // @route   GET /api/parts
 // @access  Public
 const getParts = async (req, res) => {
-    const parts = await Part.find({});
-    res.json(parts);
+    console.log('GET /api/parts request received');
+    try {
+        const parts = await Part.find({});
+        console.log(`Found ${parts.length} parts`);
+        res.json(parts);
+    } catch (err) {
+        console.error('Error fetching parts:', err);
+        res.status(500).json({ message: err.message, stack: err.stack });
+    }
 };
 
 // @desc    Fetch single part
