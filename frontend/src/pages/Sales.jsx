@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import api from '../api/axios';
-import { ShoppingCart, Plus, Minus, Trash2, Printer, CheckCircle, Package, HardHat, Search } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 
 const Sales = () => {
+    const [searchParams] = useSearchParams();
     const [parts, setParts] = useState([]);
     const [machines, setMachines] = useState([]);
     const [activeTab, setActiveTab] = useState('machines'); // 'machines' or 'parts'
@@ -12,6 +11,7 @@ const Sales = () => {
     const [dueAmount, setDueAmount] = useState(0);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(null);
+    const [printMode, setPrintMode] = useState('invoice'); // 'invoice' or 'gatepass'
 
     useEffect(() => {
         const fetchData = async () => {
@@ -22,12 +22,19 @@ const Sales = () => {
                 ]);
                 setParts(partsRes.data);
                 setMachines(machinesRes.data);
+
+                // Check if we are viewing a specific sale from history
+                const saleId = searchParams.get('id');
+                if (saleId) {
+                    const { data } = await api.get(`/sales/${saleId}`);
+                    setSuccess(data);
+                }
             } catch (err) {
                 console.error('Error fetching inventory:', err);
             }
         };
         fetchData();
-    }, []);
+    }, [searchParams]);
 
     const addToCart = (item, type) => {
         const existing = cart.find(i => i.id === item._id);
@@ -94,94 +101,139 @@ const Sales = () => {
         }
     };
 
-    const handlePrint = () => {
-        window.print();
+    const handlePrint = (mode) => {
+        setPrintMode(mode);
+        setTimeout(() => {
+            window.print();
+        }, 100);
     };
 
     if (success) {
         return (
-            <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-100 print:shadow-none print:border-none print:p-8">
-                <div className="flex items-center justify-between mb-8 print:hidden">
-                    <div className="flex items-center gap-2 text-emerald-600 font-black text-sm uppercase tracking-widest">
-                        <CheckCircle size={20} />
-                        Transaction Completed
+            <div className="max-w-4xl mx-auto space-y-8">
+                {/* Control Panel (Screen Only) */}
+                <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col md:flex-row items-center justify-between gap-6 print:hidden">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500">
+                            <CheckCircle size={24} />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-black text-slate-900 tracking-tight uppercase">Billing Secured</h2>
+                            <p className="text-xs text-slate-400 font-bold tracking-widest uppercase">Select export format below</p>
+                        </div>
                     </div>
-                    <button
-                        onClick={() => setSuccess(null)}
-                        className="text-slate-400 hover:text-black font-bold text-xs uppercase tracking-widest transition-colors"
-                    >
-                        + New Entry
-                    </button>
-                </div>
 
-                <div className="text-center mb-10">
-                    <img src="/logo.jpeg" alt="Logo" className="h-20 mx-auto mb-4 object-contain" />
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">SHAN ENTERPRISES</h1>
-                    <p className="text-slate-400 uppercase tracking-[0.3em] text-[10px] font-black mt-1">Official Sales Invoice</p>
-                    <div className="mt-6 flex justify-between border-y border-slate-50 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2">
-                        <span>Date: {new Date(success.createdAt).toLocaleDateString()}</span>
-                        <span>Invoice: #{success._id.slice(-6).toUpperCase()}</span>
-                    </div>
-                </div>
-
-                <div className="mb-8 px-2">
-                    <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Customer / Consignee</p>
-                    <p className="text-lg font-black text-slate-900 tracking-tight">{success.customerName}</p>
-                </div>
-
-                <table className="w-full mb-10">
-                    <thead>
-                        <tr className="border-b border-slate-900">
-                            <th className="py-4 text-left text-[10px] font-black text-slate-900 uppercase tracking-widest">Description</th>
-                            <th className="py-4 text-center text-[10px] font-black text-slate-900 uppercase tracking-widest">Qty</th>
-                            <th className="py-4 text-right text-[10px] font-black text-slate-900 uppercase tracking-widest">Unit Price</th>
-                            <th className="py-4 text-right text-[10px] font-black text-slate-900 uppercase tracking-widest">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                        {success.items.map((item, idx) => (
-                            <tr key={idx}>
-                                <td className="py-4 text-sm font-bold text-slate-800 tracking-tight">{item.name}</td>
-                                <td className="py-4 text-center text-sm font-medium text-slate-600">{item.quantity}</td>
-                                <td className="py-4 text-right text-sm font-medium text-slate-600">{item.price.toLocaleString()}</td>
-                                <td className="py-4 text-right text-sm font-black text-slate-900">{(item.price * item.quantity).toLocaleString()}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                    <tfoot>
-                        <tr className="border-t-2 border-slate-900">
-                            <td colSpan="3" className="py-5 text-right font-black text-slate-900 text-xs uppercase tracking-widest">Grand Total</td>
-                            <td className="py-5 text-right font-black text-slate-900 text-xl tracking-tighter italic">LKR {success.totalAmount.toLocaleString()}</td>
-                        </tr>
-                        {success.dueAmount > 0 && (
-                            <tr>
-                                <td colSpan="3" className="py-1 text-right font-bold text-rose-500 text-[10px] uppercase tracking-widest">Total Due</td>
-                                <td className="py-1 text-right font-black text-rose-600 text-sm tracking-tight italic">LKR {success.dueAmount.toLocaleString()}</td>
-                            </tr>
-                        )}
-                    </tfoot>
-                </table>
-
-                <div className="grid grid-cols-2 gap-12 mt-16 mb-12 items-end px-4">
-                    <div className="border-t-2 border-slate-900 pt-3 text-center">
-                        <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest">Client Acknowledgement</p>
-                    </div>
-                    <div className="border-t-2 border-slate-900 pt-3 text-center">
-                        <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest">Authorized Signature</p>
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => handlePrint('invoice')}
+                            className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95"
+                        >
+                            <Printer size={16} />
+                            Print Invoice
+                        </button>
+                        <button
+                            onClick={() => handlePrint('gatepass')}
+                            className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-slate-900 text-slate-900 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95"
+                        >
+                            <Printer size={16} />
+                            Print Gate Pass
+                        </button>
+                        <button
+                            onClick={() => {
+                                setSuccess(null);
+                                window.history.replaceState({}, '', '/sales');
+                            }}
+                            className="px-4 py-3 text-slate-400 hover:text-slate-900 text-xs font-black uppercase tracking-widest transition-colors"
+                        >
+                            + New Entry
+                        </button>
                     </div>
                 </div>
 
-                <div className="mt-12 pt-8 border-t border-slate-50 text-center text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em] hidden print:block">
-                    Valid for 30 days. Software provided by Shan Enterprises Systems.
-                </div>
+                {/* Previews Container */}
+                <div className="grid grid-cols-1 gap-12">
+                    {/* Invoice View */}
+                    <div className={`${printMode === 'gatepass' ? 'print:hidden' : ''} bg-white p-12 rounded-2xl shadow-xl border border-slate-100 print:shadow-none print:border-none print:p-8 relative`}>
+                        <div className="text-center mb-10">
+                            <img src="/logo.jpeg" alt="Logo" className="h-20 mx-auto mb-4 object-contain" />
+                            <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">SHAN ENTERPRISES</h1>
+                            <p className="text-slate-400 uppercase tracking-[0.3em] text-[10px] font-black mt-1">
+                                {printMode === 'invoice' ? 'Official Sales Invoice' : 'Security Gate Pass'}
+                            </p>
+                            <div className="mt-8 flex justify-between border-y border-slate-50 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2">
+                                <span>Date: {new Date(success.createdAt).toLocaleDateString()}</span>
+                                <span>Ref: #{success._id.slice(-8).toUpperCase()}</span>
+                            </div>
+                        </div>
 
-                <button
-                    onClick={handlePrint}
-                    className="w-full py-4 bg-black text-white rounded-2xl flex items-center justify-center gap-3 hover:bg-slate-800 transition-all print:hidden font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-200"
-                >
-                    <Printer size={18} />
-                    Print Invoice & Gate Pass
-                </button>
+                        <div className="mb-10 px-2 flex justify-between items-start">
+                            <div>
+                                <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Charge To / Released For</p>
+                                <p className="text-lg font-black text-slate-900 tracking-tight">{success.customerName}</p>
+                            </div>
+                            <div className="text-right">
+                                <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Status</p>
+                                <p className="text-sm font-black text-emerald-600 uppercase tracking-widest">{success.paymentStatus}</p>
+                            </div>
+                        </div>
+
+                        <table className="w-full mb-12">
+                            <thead>
+                                <tr className="border-b-2 border-slate-900">
+                                    <th className="py-4 text-left text-[10px] font-black text-slate-900 uppercase tracking-widest">Item Description</th>
+                                    <th className="py-4 text-center text-[10px] font-black text-slate-900 uppercase tracking-widest">Qty</th>
+                                    {printMode === 'invoice' && (
+                                        <>
+                                            <th className="py-4 text-right text-[10px] font-black text-slate-900 uppercase tracking-widest">Rate (LKR)</th>
+                                            <th className="py-4 text-right text-[10px] font-black text-slate-900 uppercase tracking-widest">Subtotal</th>
+                                        </>
+                                    )}
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {success.items.map((item, idx) => (
+                                    <tr key={idx}>
+                                        <td className="py-5 text-sm font-bold text-slate-800 tracking-tight uppercase">{item.name}</td>
+                                        <td className="py-5 text-center text-sm font-black text-slate-900">{item.quantity}</td>
+                                        {printMode === 'invoice' && (
+                                            <>
+                                                <td className="py-5 text-right text-sm font-medium text-slate-600">{item.price.toLocaleString()}</td>
+                                                <td className="py-5 text-right text-sm font-black text-slate-900">{(item.price * item.quantity).toLocaleString()}</td>
+                                            </>
+                                        )}
+                                    </tr>
+                                ))}
+                            </tbody>
+                            {printMode === 'invoice' && (
+                                <tfoot>
+                                    <tr className="border-t-2 border-slate-900">
+                                        <td colSpan="3" className="py-6 text-right font-black text-slate-900 text-xs uppercase tracking-widest">Total Amount Payable</td>
+                                        <td className="py-6 text-right font-black text-slate-900 text-2xl tracking-tighter italic">LKR {success.totalAmount.toLocaleString()}</td>
+                                    </tr>
+                                    {success.dueAmount > 0 && (
+                                        <tr>
+                                            <td colSpan="3" className="py-1 text-right font-bold text-rose-500 text-[10px] uppercase tracking-widest">Outstanding Balance</td>
+                                            <td className="py-1 text-right font-black text-rose-600 text-sm tracking-tight italic">LKR {success.dueAmount.toLocaleString()}</td>
+                                        </tr>
+                                    )}
+                                </tfoot>
+                            )}
+                        </table>
+
+                        <div className="grid grid-cols-2 gap-12 mt-20 mb-12 items-end px-4">
+                            <div className="border-t-2 border-slate-900 pt-3 text-center">
+                                <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest">Receiver signature</p>
+                            </div>
+                            <div className="border-t-2 border-slate-900 pt-3 text-center">
+                                <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest">Authorized clearance</p>
+                            </div>
+                        </div>
+
+                        <div className="mt-12 pt-8 border-t border-slate-50 text-center text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em]">
+                            Software provided by Shan Enterprises Systems • Printed on {new Date().toLocaleString()}
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
