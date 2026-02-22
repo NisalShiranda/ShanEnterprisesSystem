@@ -100,7 +100,7 @@ const Sales = () => {
 
     if (success) {
         return (
-            <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-100 print:shadow-none print:border-none print:p-0">
+            <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-100 print:shadow-none print:border-none print:p-8">
                 <div className="flex items-center justify-between mb-8 print:hidden">
                     <div className="flex items-center gap-2 text-emerald-600 font-black text-sm uppercase tracking-widest">
                         <CheckCircle size={20} />

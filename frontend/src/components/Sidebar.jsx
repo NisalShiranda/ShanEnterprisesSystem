@@ -7,7 +7,8 @@ import {
     ShoppingCart,
     CalendarDays,
     LogOut,
-    ChevronRight
+    ChevronRight,
+    History
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -18,6 +19,7 @@ const Sidebar = () => {
         { name: 'Overview', path: '/', icon: LayoutDashboard },
         { name: 'Inventory', path: '/machines', icon: HardHat },
         { name: 'Sales Hub', path: '/sales', icon: ShoppingCart },
+        { name: 'Sales History', path: '/sales-history', icon: History },
         { name: 'Rentals', path: '/rentals', icon: CalendarDays },
     ];
 

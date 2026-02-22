@@ -7,6 +7,7 @@ import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
 import Machines from './pages/Machines';
 import Sales from './pages/Sales';
+import SalesHistory from './pages/SalesHistory';
 import Rentals from './pages/Rentals';
 import Layout from './components/Layout';
 
@@ -34,6 +35,12 @@ function App() {
           <Route path="/machines" element={
             <ProtectedRoute>
               <Machines />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/sales-history" element={
+            <ProtectedRoute>
+              <SalesHistory />
             </ProtectedRoute>
           } />
 
