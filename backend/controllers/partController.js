@@ -31,7 +31,6 @@ const createPart = async (req, res) => {
         name,
         price,
         description,
-        category,
         stock,
     });
 
@@ -51,7 +50,6 @@ const updatePart = async (req, res) => {
         part.name = name || part.name;
         part.price = price || part.price;
         part.description = description || part.description;
-        part.category = category || part.category;
         part.stock = stock || part.stock;
 
         const updatedPart = await part.save();

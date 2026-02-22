@@ -6,7 +6,6 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
 import Machines from './pages/Machines';
-import Parts from './pages/Parts';
 import Sales from './pages/Sales';
 import Rentals from './pages/Rentals';
 import Layout from './components/Layout';

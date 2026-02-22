@@ -31,7 +31,6 @@ const createMachine = async (req, res) => {
         name,
         price,
         description,
-        category,
         rentalPricePerMonth,
         stock,
     });
@@ -52,7 +51,6 @@ const updateMachine = async (req, res) => {
         machine.name = name || machine.name;
         machine.price = price || machine.price;
         machine.description = description || machine.description;
-        machine.category = category || machine.category;
         machine.rentalPricePerMonth = rentalPricePerMonth || machine.rentalPricePerMonth;
         machine.stock = stock || machine.stock;
 
