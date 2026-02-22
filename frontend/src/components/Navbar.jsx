@@ -13,7 +13,7 @@ const Navbar = () => {
     }, []);
 
     return (
-        <header className={`h-16 sticky top-0 z-10 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm' : 'bg-white border-b border-slate-50'
+        <header className={`h-16 sticky top-0 z-10 transition-all duration-300 print:hidden ${scrolled ? 'bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm' : 'bg-white border-b border-slate-50'
             }`}>
             <div className="h-full px-8 flex items-center justify-between gap-8">
                 {/* Search Bar */}
