@@ -158,4 +158,35 @@ const renewRental = async (req, res) => {
     }
 };
 
-module.exports = { createRental, getRentals, renewRental, recordPayment };
+const deleteRental = async (req, res) => {
+    try {
+        console.log('Attempting to delete rental:', req.params.id);
+        const rental = await Rental.findById(req.params.id);
+
+        if (rental) {
+            // Revert machine stock
+            if (rental.machine) {
+                console.log('Reverting stock for machine:', rental.machine);
+                const machine = await Machine.findById(rental.machine);
+                if (machine) {
+                    machine.stock += 1;
+                    await machine.save();
+                    console.log('Stock reverted successfully');
+                } else {
+                    console.warn('Machine not found for rental, skipping stock reversion');
+                }
+            }
+
+            await Rental.deleteOne({ _id: req.params.id });
+            console.log('Rental deleted successfully');
+            res.json({ message: 'Rental removed and machine stock reverted' });
+        } else {
+            res.status(404).json({ message: 'Rental not found' });
+        }
+    } catch (error) {
+        console.error('Error in deleteRental:', error);
+        res.status(500).json({ message: `Server Error: ${error.message}` });
+    }
+};
+
+module.exports = { createRental, getRentals, renewRental, recordPayment, deleteRental };

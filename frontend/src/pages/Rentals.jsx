@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Calendar, Plus, RefreshCw, Printer, User, HardHat, DollarSign, History, ChevronRight, CheckCircle2, Clock } from 'lucide-react';
+import { Calendar, Plus, RefreshCw, Printer, User, HardHat, DollarSign, History, ChevronRight, CheckCircle2, Clock, Trash2 } from 'lucide-react';
 
 const Rentals = () => {
     const [rentals, setRentals] = useState([]);
@@ -11,7 +11,11 @@ const Rentals = () => {
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [selectedRental, setSelectedRental] = useState(null);
     const [printData, setPrintData] = useState(null); // { rental, invoice, balanceAtTime }
-    const [paymentData, setPaymentData] = useState({ amount: '', method: 'Cash' });
+    const [paymentData, setPaymentData] = useState({
+        amount: '',
+        method: 'Cash',
+        paymentDate: new Date().toISOString().split('T')[0]
+    });
     const [formData, setFormData] = useState({
         customerName: '',
         machineId: '',
@@ -56,12 +60,29 @@ const Rentals = () => {
         try {
             await api.post(`/rentals/${selectedRental._id}/payment`, paymentData);
             setShowPaymentModal(false);
-            setPaymentData({ amount: '', method: 'Cash' });
+            setPaymentData({
+                amount: '',
+                method: 'Cash',
+                paymentDate: new Date().toISOString().split('T')[0]
+            });
             fetchData();
             alert('Payment recorded successfully');
         } catch (err) {
             console.error('Error recording payment:', err);
             alert(err.response?.data?.message || 'Error recording payment. Please check your connection.');
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this rental contract? This will revert the machine stock.')) {
+            try {
+                await api.delete(`/rentals/remove/${id}`);
+                fetchData();
+            } catch (err) {
+                const errorMsg = err.response?.data?.message || err.message || 'Unknown error';
+                const status = err.response?.status || 'Network Error';
+                alert(`Error deleting rental (${status}): ${errorMsg}`);
+            }
         }
     };
 
@@ -229,6 +250,13 @@ const Rentals = () => {
                                     <span className={`px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest border ${rental.status === 'Active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
                                         {rental.status}
                                     </span>
+                                    <button
+                                        onClick={() => handleDelete(rental._id)}
+                                        className="ml-2 p-2 text-slate-300 hover:text-rose-500 transition-colors"
+                                        title="Delete Rental"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
                                 </div>
 
                                 <div className="px-6 py-5 bg-slate-50/50 space-y-4">
@@ -375,6 +403,15 @@ const Rentals = () => {
                                         value={paymentData.amount}
                                         onChange={(e) => setPaymentData({ ...paymentData, amount: e.target.value })}
                                         placeholder="0.00"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Payment Date</label>
+                                    <input
+                                        type="date" required
+                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-200 transition text-sm font-bold"
+                                        value={paymentData.paymentDate}
+                                        onChange={(e) => setPaymentData({ ...paymentData, paymentDate: e.target.value })}
                                     />
                                 </div>
                                 <div>
