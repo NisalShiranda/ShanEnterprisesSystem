@@ -46,15 +46,92 @@ const createRental = async (req, res) => {
     res.status(201).json(createdRental);
 };
 
-// @desc    Get all rentals
+// @desc    Get all rentals (with auto-renewal check)
 // @route   GET /api/rentals
 // @access  Private
 const getRentals = async (req, res) => {
-    const rentals = await Rental.find({}).populate('machine', 'name category');
-    res.json(rentals);
+    try {
+        let rentals = await Rental.find({}).populate('machine', 'name category');
+
+        // Check for renewals for all active rentals
+        const now = new Date();
+        let updatedCount = 0;
+
+        for (let rental of rentals) {
+            if (rental.status === 'Active' && now > new Date(rental.nextRenewalDate)) {
+                let nextDate = new Date(rental.nextRenewalDate);
+
+                while (now > nextDate) {
+                    // Add new invoice
+                    rental.invoices.push({
+                        invoiceDate: new Date(nextDate),
+                        amount: rental.monthlyRate,
+                        status: 'Unpaid',
+                    });
+
+                    // Advance renewal date by 1 month
+                    nextDate.setMonth(nextDate.getMonth() + 1);
+                }
+
+                rental.nextRenewalDate = nextDate;
+                await rental.save();
+                updatedCount++;
+            }
+        }
+
+        if (updatedCount > 0) {
+            // Re-fetch if updates happened to ensure consistency
+            rentals = await Rental.find({}).populate('machine', 'name category');
+        }
+
+        res.json(rentals);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 };
 
-// @desc    Update rental (e.g., generate monthly invoice)
+// @desc    Record a payment for a rental
+// @route   POST /api/rentals/:id/payment
+// @access  Private
+const recordPayment = async (req, res) => {
+    const { amount, method, paymentDate } = req.body;
+    console.log(`Processing payment for rental ${req.params.id}:`, req.body);
+
+    try {
+        const rental = await Rental.findById(req.params.id);
+
+        if (rental) {
+            // Defensive: Initialize totalPaid if it's missing in legacy records
+            if (typeof rental.totalPaid !== 'number') {
+                rental.totalPaid = 0;
+            }
+
+            rental.totalPaid += Number(amount);
+            rental.payments.push({
+                amount: Number(amount),
+                method: method || 'Cash',
+                paymentDate: paymentDate || Date.now()
+            });
+
+            // Optionally mark invoices as paid if totalPaid covers them 
+            // (Simple logic: just keep totalPaid vs totalBilled for now as balance)
+            console.log('Updated rental data before save:', {
+                totalPaid: rental.totalPaid,
+                paymentCount: rental.payments.length
+            });
+
+            const updatedRental = await rental.save();
+            res.json(updatedRental);
+        } else {
+            res.status(404).json({ message: 'Rental not found' });
+        }
+    } catch (error) {
+        console.error('Error in recordPayment:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Update rental (deprecated by auto-renewal in GET, but kept for manual triggers)
 // @route   PUT /api/rentals/:id/renew
 // @access  Private
 const renewRental = async (req, res) => {
@@ -65,7 +142,7 @@ const renewRental = async (req, res) => {
 
         // Add new invoice
         rental.invoices.push({
-            invoiceDate: nextRenewal,
+            invoiceDate: new Date(nextRenewal),
             amount: rental.monthlyRate,
             status: 'Unpaid',
         });
@@ -81,4 +158,4 @@ const renewRental = async (req, res) => {
     }
 };
 
-module.exports = { createRental, getRentals, renewRental };
+module.exports = { createRental, getRentals, renewRental, recordPayment };

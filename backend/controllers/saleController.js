@@ -87,13 +87,58 @@ const getSales = async (req, res) => {
 // @route   GET /api/sales/:id
 // @access  Private
 const getSaleById = async (req, res) => {
-    const sale = await Sale.findById(req.params.id).populate('items.part items.machine', 'name category');
+    try {
+        console.log('Fetching sale with ID:', req.params.id);
+        const sale = await Sale.findById(req.params.id).populate('items.part items.machine', 'name category');
 
-    if (sale) {
-        res.json(sale);
-    } else {
-        res.status(404).json({ message: 'Sale not found' });
+        if (sale) {
+            res.json(sale);
+        } else {
+            console.log('Sale not found for ID:', req.params.id);
+            res.status(404).json({ message: 'Sale not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching sale by ID:', error);
+        res.status(500).json({ message: error.message });
     }
 };
 
-module.exports = { createSale, getSales, getSaleById };
+// @desc    Delete sale and revert stock
+// @route   DELETE /api/sales/:id
+// @access  Private
+const deleteSale = async (req, res) => {
+    try {
+        const sale = await Sale.findById(req.params.id);
+
+        if (sale) {
+            // Revert stock for each item in the sale
+            await Promise.all(
+                sale.items.map(async (item) => {
+                    if (item.part) {
+                        const part = await Part.findById(item.part);
+                        if (part) {
+                            part.stock += item.quantity;
+                            await part.save();
+                        }
+                    } else if (item.machine) {
+                        const machine = await Machine.findById(item.machine);
+                        if (machine) {
+                            machine.stock += item.quantity;
+                            await machine.save();
+                        }
+                    }
+                })
+            );
+
+            await Sale.deleteOne({ _id: req.params.id });
+            res.json({ message: 'Sale removed and stock reverted' });
+        } else {
+            res.status(404).json({ message: 'Sale not found' });
+        }
+    } catch (error) {
+        console.error('Error deleting sale:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { createSale, getSales, getSaleById, deleteSale };

@@ -30,8 +30,23 @@ const Sales = () => {
                 // Check if we are viewing a specific sale from history
                 const saleId = searchParams.get('id');
                 if (saleId) {
-                    const { data } = await api.get(`/sales/${saleId}`);
-                    setSuccess(data);
+                    try {
+                        const { data } = await api.get(`/sales/${saleId}`);
+                        if (!data) {
+                            alert('Transaction not found. It may have been deleted.');
+                            window.location.href = '/sales-history';
+                            return;
+                        }
+                        setSuccess(data);
+                    } catch (err) {
+                        console.error('Error fetching sale:', err);
+                        if (err.response?.status === 404) {
+                            alert('Transaction not found. It may have been deleted.');
+                            window.location.href = '/sales-history';
+                        } else {
+                            alert('Error loading transaction details.');
+                        }
+                    }
                 }
             } catch (err) {
                 console.error('Error fetching inventory:', err);

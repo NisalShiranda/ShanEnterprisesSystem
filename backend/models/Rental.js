@@ -35,6 +35,17 @@ const rentalSchema = mongoose.Schema(
                 status: { type: String, required: true, default: 'Unpaid' },
             },
         ],
+        totalPaid: {
+            type: Number,
+            default: 0,
+        },
+        payments: [
+            {
+                paymentDate: { type: Date, default: Date.now },
+                amount: { type: Number, required: true },
+                method: { type: String, default: 'Cash' },
+            }
+        ]
     },
     {
         timestamps: true,

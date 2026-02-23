@@ -11,7 +11,8 @@ import {
     TrendingUp,
     Clock,
     CheckCircle2,
-    AlertCircle
+    AlertCircle,
+    Trash2
 } from 'lucide-react';
 
 const SalesHistory = () => {
@@ -20,18 +21,31 @@ const SalesHistory = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        const fetchSales = async () => {
-            try {
-                const { data } = await api.get('/sales');
-                setSales(data);
-            } catch (err) {
-                console.error('Error fetching sales history:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchSales();
     }, []);
+
+    const fetchSales = async () => {
+        try {
+            setLoading(true);
+            const { data } = await api.get('/sales');
+            setSales(data);
+        } catch (err) {
+            console.error('Error fetching sales history:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
+            try {
+                await api.delete(`/sales/${id}`);
+                setSales(sales.filter(s => s._id !== id));
+            } catch (err) {
+                alert(err.response?.data?.message || 'Error deleting transaction');
+            }
+        }
+    };
 
     const filteredSales = sales.filter(sale =>
         sale.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -140,12 +154,20 @@ const SalesHistory = () => {
                                             {sale.paymentStatus}
                                         </div>
                                     </td>
-                                    <td className="px-6 py-5 text-right">
+                                    <td className="px-6 py-5 text-right flex justify-end gap-2">
                                         <button
                                             onClick={() => window.location.href = `/sales?id=${sale._id}`}
                                             className="p-2 text-slate-400 hover:text-slate-900 bg-white border border-slate-100 rounded-xl hover:border-slate-300 hover:shadow-md transition-all active:scale-95"
+                                            title="View Details"
                                         >
                                             <Eye size={18} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(sale._id)}
+                                            className="p-2 text-slate-400 hover:text-rose-600 bg-white border border-slate-100 rounded-xl hover:border-rose-100 hover:shadow-md transition-all active:scale-95"
+                                            title="Delete Transaction"
+                                        >
+                                            <Trash2 size={18} />
                                         </button>
                                     </td>
                                 </tr>
