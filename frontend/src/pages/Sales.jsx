@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from 'react';
+import api from '../api/axios';
+import { ShoppingCart, Plus, Minus, Trash2, Printer, CheckCircle, Package, HardHat, Search } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 
 const Sales = () => {
@@ -109,8 +112,157 @@ const Sales = () => {
     };
 
     if (success) {
+        const renderDocument = (type) => {
+            const isGatePass = type === 'gatepass';
+            const isHiddenInPrint = printMode !== type;
+
+            return (
+                <div className={`${isHiddenInPrint ? 'print:hidden' : ''} bg-white p-10 rounded-2xl shadow-xl border border-slate-100 print:shadow-none print:border-none print:p-8 relative`}>
+                    {/* Professional Header based on Physical Template */}
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8 border-b-4 border-slate-900 pb-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center text-white overflow-hidden border-4 border-slate-200 shadow-md">
+                                <img src="/logo.jpeg" alt="SE" className="w-full h-full object-cover invert" />
+                            </div>
+                            <div>
+                                <h1 className="text-3xl font-black text-slate-900 tracking-tighter leading-none mb-1">SHAN ENTERPRISES</h1>
+                                <div className="space-y-0.5">
+                                    <p className="text-[9px] font-bold text-slate-600 uppercase tracking-tight">No.170-C/10/B, Galmankadawatta, Kimbulapitiya.</p>
+                                    <p className="text-[9px] font-bold text-slate-600">Tel: 0777-914930 / 076-7015159</p>
+                                    <p className="text-[9px] font-bold text-slate-600 uppercase">E-Mail: shanenterprises71@gmail.com</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                            <div className="bg-slate-900 text-white px-4 py-2 rounded-lg font-black text-sm uppercase tracking-widest shadow-lg">
+                                {isGatePass ? 'GATE PASS' : 'SALES INVOICE'}
+                            </div>
+                            <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded">Reg. No: W.4086</p>
+                        </div>
+                    </div>
+
+                    {/* Metadata Section */}
+                    <div className="grid grid-cols-2 gap-x-12 gap-y-4 mb-8 px-2">
+                        <div className="space-y-3">
+                            <div>
+                                <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest mb-1 border-b border-slate-100 w-fit">Delivery To / Customer</p>
+                                <p className="text-lg font-black text-slate-900 tracking-tight leading-none">{success.customerName}</p>
+                            </div>
+                            {isGatePass && (
+                                <div>
+                                    <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest mb-1 border-b border-slate-100 w-fit">Attention</p>
+                                    <p className="text-xs font-bold text-slate-400 italic">......................................................................</p>
+                                </div>
+                            )}
+                        </div>
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-end border-b border-dashed border-slate-200 pb-1">
+                                <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest">{isGatePass ? 'D.N. NO :' : 'INV NO :'}</p>
+                                <p className="text-xs font-black text-slate-900 tracking-widest">#{success._id.slice(-8).toUpperCase()}</p>
+                            </div>
+                            <div className="flex justify-between items-end border-b border-dashed border-slate-200 pb-1">
+                                <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest">{isGatePass ? 'D.N. DATE :' : 'DATE :'}</p>
+                                <p className="text-xs font-black text-slate-900 tracking-widest">{new Date(success.createdAt).toLocaleDateString('en-GB')}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Table Section */}
+                    <table className="w-full mb-10 border-collapse">
+                        <thead>
+                            <tr className="bg-slate-50 border-y-2 border-slate-900">
+                                {isGatePass ? (
+                                    <>
+                                        <th className="py-3 px-2 text-left text-[9px] font-black text-slate-900 uppercase tracking-widest border-r border-slate-200">Style No</th>
+                                        <th className="py-3 px-2 text-left text-[9px] font-black text-slate-900 uppercase tracking-widest border-r border-slate-200">Colour</th>
+                                        <th className="py-3 px-4 text-left text-[9px] font-black text-slate-900 uppercase tracking-widest border-r border-slate-200">Description</th>
+                                        <th className="py-3 px-2 text-center text-[9px] font-black text-slate-900 uppercase tracking-widest border-r border-slate-200">Size</th>
+                                        <th className="py-3 px-2 text-center text-[9px] font-black text-slate-900 uppercase tracking-widest border-r border-slate-200">Good Qty</th>
+                                        <th className="py-3 px-2 text-left text-[9px] font-black text-slate-900 uppercase tracking-widest">Remarks</th>
+                                    </>
+                                ) : (
+                                    <>
+                                        <th className="py-3 px-2 text-left text-[9px] font-black text-slate-900 uppercase tracking-widest">Item Description</th>
+                                        <th className="py-3 px-2 text-center text-[9px] font-black text-slate-900 uppercase tracking-widest">Qty</th>
+                                        <th className="py-3 px-2 text-right text-[9px] font-black text-slate-900 uppercase tracking-widest">Rate (LKR)</th>
+                                        <th className="py-3 px-2 text-right text-[9px] font-black text-slate-900 uppercase tracking-widest text-right">Subtotal</th>
+                                    </>
+                                )}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {success.items.map((item, idx) => (
+                                <tr key={idx} className="border-b border-slate-100">
+                                    {isGatePass ? (
+                                        <>
+                                            <td className="py-4 px-2 text-xs font-bold text-slate-300 border-r border-slate-100 italic">--</td>
+                                            <td className="py-4 px-2 text-xs font-bold text-slate-300 border-r border-slate-100 italic">--</td>
+                                            <td className="py-4 px-4 text-sm font-black text-slate-800 tracking-tight uppercase border-r border-slate-100">{item.name}</td>
+                                            <td className="py-4 px-2 text-xs font-bold text-slate-300 border-r border-slate-100 italic text-center text-center">--</td>
+                                            <td className="py-4 px-2 text-sm font-black text-slate-900 text-center border-r border-slate-100">{item.quantity}</td>
+                                            <td className="py-4 px-2 text-xs font-bold text-slate-300 italic">..........</td>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <td className="py-4 px-2 text-sm font-black text-slate-800 tracking-tight uppercase text-left">{item.name}</td>
+                                            <td className="py-4 px-2 text-center text-sm font-black text-slate-900">{item.quantity}</td>
+                                            <td className="py-4 px-2 text-right text-sm font-medium text-slate-600">{item.price.toLocaleString()}</td>
+                                            <td className="py-4 px-2 text-right text-sm font-black text-slate-900 text-right">{(item.price * item.quantity).toLocaleString()}</td>
+                                        </>
+                                    )}
+                                </tr>
+                            ))}
+                        </tbody>
+                        <tfoot>
+                            {isGatePass ? (
+                                <tr className="border-t-2 border-slate-900">
+                                    <td colSpan="4" className="py-4 text-left font-black text-slate-900 text-[10px] uppercase tracking-widest px-2">Total Good Qty Loaded</td>
+                                    <td className="py-4 text-center font-black text-slate-900 text-sm italic">{success.items.reduce((acc, item) => acc + item.quantity, 0)}</td>
+                                    <td className="py-4 px-2 font-black text-slate-900 text-[10px] uppercase tracking-tighter">No: {success._id.slice(-4).toUpperCase()}</td>
+                                </tr>
+                            ) : (
+                                <>
+                                    <tr className="border-t-2 border-slate-900">
+                                        <td colSpan="3" className="py-5 text-right font-black text-slate-900 text-[10px] uppercase tracking-widest px-4">Payable Amount</td>
+                                        <td className="py-5 text-right font-black text-slate-900 text-xl tracking-tighter italic">LKR {success.totalAmount.toLocaleString()}</td>
+                                    </tr>
+                                    {success.dueAmount > 0 && (
+                                        <tr>
+                                            <td colSpan="3" className="py-1 text-right font-bold text-rose-500 text-[10px] uppercase tracking-widest px-4 italic">Outstanding Balance</td>
+                                            <td className="py-1 text-right font-black text-rose-600 text-xs tracking-tight italic">LKR {success.dueAmount.toLocaleString()}</td>
+                                        </tr>
+                                    )}
+                                </>
+                            )}
+                        </tfoot>
+                    </table>
+
+                    {/* Footer Section based on Physical Template */}
+                    <div className="grid grid-cols-3 gap-8 mt-16 mb-8 px-4">
+                        <div className="flex flex-col items-center">
+                            <div className="w-full border-t border-dashed border-slate-400 mb-2"></div>
+                            <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest">Prepared By</p>
+                        </div>
+                        <div className="flex flex-col items-center">
+                            <div className="w-full border-t border-dashed border-slate-400 mb-2"></div>
+                            <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest">Authorised By</p>
+                        </div>
+                        <div className="flex flex-col items-center">
+                            <div className="w-full border-t border-dashed border-slate-400 mb-2"></div>
+                            <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest">Approved By</p>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 pt-6 border-t border-slate-50 text-center flex justify-between items-center px-4">
+                        <p className="text-[8px] font-bold text-slate-300 uppercase tracking-widest">Printed: {new Date().toLocaleString()}</p>
+                        <p className="text-[8px] font-black text-slate-900 uppercase tracking-widest">SYSTEM SECURED BY SHAN ENTERPRISES</p>
+                    </div>
+                </div>
+            );
+        };
+
         return (
-            <div className="max-w-4xl mx-auto space-y-8">
+            <div className="max-w-7xl mx-auto space-y-8">
                 {/* Control Panel (Screen Only) */}
                 <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col md:flex-row items-center justify-between gap-6 print:hidden">
                     <div className="flex items-center gap-4">
@@ -151,87 +303,14 @@ const Sales = () => {
                 </div>
 
                 {/* Previews Container */}
-                <div className="grid grid-cols-1 gap-12">
-                    {/* Invoice View */}
-                    <div className={`${printMode === 'gatepass' ? 'print:hidden' : ''} bg-white p-12 rounded-2xl shadow-xl border border-slate-100 print:shadow-none print:border-none print:p-8 relative`}>
-                        <div className="text-center mb-10">
-                            <img src="/logo.jpeg" alt="Logo" className="h-20 mx-auto mb-4 object-contain" />
-                            <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase">SHAN ENTERPRISES</h1>
-                            <p className="text-slate-400 uppercase tracking-[0.3em] text-[10px] font-black mt-1">
-                                {printMode === 'invoice' ? 'Official Sales Invoice' : 'Security Gate Pass'}
-                            </p>
-                            <div className="mt-8 flex justify-between border-y border-slate-50 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2">
-                                <span>Date: {new Date(success.createdAt).toLocaleDateString()}</span>
-                                <span>Ref: #{success._id.slice(-8).toUpperCase()}</span>
-                            </div>
-                        </div>
-
-                        <div className="mb-10 px-2 flex justify-between items-start">
-                            <div>
-                                <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Charge To / Released For</p>
-                                <p className="text-lg font-black text-slate-900 tracking-tight">{success.customerName}</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Status</p>
-                                <p className="text-sm font-black text-emerald-600 uppercase tracking-widest">{success.paymentStatus}</p>
-                            </div>
-                        </div>
-
-                        <table className="w-full mb-12">
-                            <thead>
-                                <tr className="border-b-2 border-slate-900">
-                                    <th className="py-4 text-left text-[10px] font-black text-slate-900 uppercase tracking-widest">Item Description</th>
-                                    <th className="py-4 text-center text-[10px] font-black text-slate-900 uppercase tracking-widest">Qty</th>
-                                    {printMode === 'invoice' && (
-                                        <>
-                                            <th className="py-4 text-right text-[10px] font-black text-slate-900 uppercase tracking-widest">Rate (LKR)</th>
-                                            <th className="py-4 text-right text-[10px] font-black text-slate-900 uppercase tracking-widest">Subtotal</th>
-                                        </>
-                                    )}
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                {success.items.map((item, idx) => (
-                                    <tr key={idx}>
-                                        <td className="py-5 text-sm font-bold text-slate-800 tracking-tight uppercase">{item.name}</td>
-                                        <td className="py-5 text-center text-sm font-black text-slate-900">{item.quantity}</td>
-                                        {printMode === 'invoice' && (
-                                            <>
-                                                <td className="py-5 text-right text-sm font-medium text-slate-600">{item.price.toLocaleString()}</td>
-                                                <td className="py-5 text-right text-sm font-black text-slate-900">{(item.price * item.quantity).toLocaleString()}</td>
-                                            </>
-                                        )}
-                                    </tr>
-                                ))}
-                            </tbody>
-                            {printMode === 'invoice' && (
-                                <tfoot>
-                                    <tr className="border-t-2 border-slate-900">
-                                        <td colSpan="3" className="py-6 text-right font-black text-slate-900 text-xs uppercase tracking-widest">Total Amount Payable</td>
-                                        <td className="py-6 text-right font-black text-slate-900 text-2xl tracking-tighter italic">LKR {success.totalAmount.toLocaleString()}</td>
-                                    </tr>
-                                    {success.dueAmount > 0 && (
-                                        <tr>
-                                            <td colSpan="3" className="py-1 text-right font-bold text-rose-500 text-[10px] uppercase tracking-widest">Outstanding Balance</td>
-                                            <td className="py-1 text-right font-black text-rose-600 text-sm tracking-tight italic">LKR {success.dueAmount.toLocaleString()}</td>
-                                        </tr>
-                                    )}
-                                </tfoot>
-                            )}
-                        </table>
-
-                        <div className="grid grid-cols-2 gap-12 mt-20 mb-12 items-end px-4">
-                            <div className="border-t-2 border-slate-900 pt-3 text-center">
-                                <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest">Receiver signature</p>
-                            </div>
-                            <div className="border-t-2 border-slate-900 pt-3 text-center">
-                                <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest">Authorized clearance</p>
-                            </div>
-                        </div>
-
-                        <div className="mt-12 pt-8 border-t border-slate-50 text-center text-[9px] font-bold text-slate-300 uppercase tracking-[0.2em]">
-                            Software provided by Shan Enterprises Systems • Printed on {new Date().toLocaleString()}
-                        </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <div className="space-y-4">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 print:hidden">Invoice Preview</p>
+                        {renderDocument('invoice')}
+                    </div>
+                    <div className="space-y-4">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2 print:hidden">Gate Pass Preview</p>
+                        {renderDocument('gatepass')}
                     </div>
                 </div>
             </div>
