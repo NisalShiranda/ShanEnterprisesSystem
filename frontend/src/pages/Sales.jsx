@@ -13,6 +13,7 @@ const Sales = () => {
     const [cart, setCart] = useState([]);
     const [customerName, setCustomerName] = useState('');
     const [paidAmount, setPaidAmount] = useState(0);
+    const [isManualPaid, setIsManualPaid] = useState(false);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(null);
     const [printMode, setPrintMode] = useState('invoice'); // 'invoice' or 'gatepass'
@@ -92,10 +93,12 @@ const Sales = () => {
 
     const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
-    // Update paidAmount whenever total changes if it's the first time
+    // Update paidAmount whenever total changes if it's not manually edited
     useEffect(() => {
-        setPaidAmount(total);
-    }, [total]);
+        if (!isManualPaid) {
+            setPaidAmount(total);
+        }
+    }, [total, isManualPaid]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -103,7 +106,7 @@ const Sales = () => {
 
         setLoading(true);
         try {
-            const { data } = await api.post('/sales', {
+            const saleData = {
                 customerName,
                 items: cart.map(i => ({
                     part: i.type === 'part' ? i.id : null,
@@ -112,12 +115,17 @@ const Sales = () => {
                     price: i.price,
                     quantity: i.quantity
                 })),
-                paidAmount
-            });
+                paidAmount: Number(paidAmount)
+            };
+
+            console.log('Sending Sale Data:', saleData);
+            const { data } = await api.post('/sales', saleData);
+
             setSuccess(data);
             setCart([]);
             setCustomerName('');
             setPaidAmount(0);
+            setIsManualPaid(false);
         } catch (err) {
             alert(err.response?.data?.message || 'Error processing sale');
         } finally {
@@ -477,7 +485,10 @@ const Sales = () => {
                                     type="number"
                                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-emerald-50 focus:border-emerald-100 transition-all text-xs font-bold text-emerald-600"
                                     value={paidAmount}
-                                    onChange={(e) => setPaidAmount(Number(e.target.value))}
+                                    onChange={(e) => {
+                                        setPaidAmount(Number(e.target.value));
+                                        setIsManualPaid(true);
+                                    }}
                                     placeholder="0.00"
                                 />
                                 {paidAmount < total && (

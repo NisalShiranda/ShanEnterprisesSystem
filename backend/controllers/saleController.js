@@ -8,16 +8,15 @@ const Machine = require('../models/Machine');
 const createSale = async (req, res) => {
     const { customerName, items, paidAmount } = req.body;
 
-    if (items && items.length === 0) {
-        res.status(400).json({ message: 'No sale items' });
-        return;
+    console.log('--- NEW SALE REQUEST ---');
+    console.log('Raw Payload:', JSON.stringify({ customerName, items, paidAmount }, null, 2));
+
+    if (!items || items.length === 0) {
+        return res.status(400).json({ message: 'No sale items' });
     }
 
-    let totalAmount = 0;
-    let totalProfit = 0;
-
     try {
-        // Process items and calculate totals
+        let calculatedTotal = 0;
         const processedItems = await Promise.all(
             items.map(async (item) => {
                 let inventoryItem;
@@ -31,23 +30,15 @@ const createSale = async (req, res) => {
                     itemType = 'machine';
                 }
 
-                if (!inventoryItem) {
-                    throw new Error(`Item not found: ${item.part || item.machine}`);
-                }
-
-                if (inventoryItem.stock < item.quantity) {
-                    throw new Error(`Insufficient stock for: ${inventoryItem.name}`);
-                }
+                if (!inventoryItem) throw new Error(`Item not found: ${item.name}`);
+                if (inventoryItem.stock < item.quantity) throw new Error(`Insufficient stock for ${inventoryItem.name}`);
 
                 // Update stock
                 inventoryItem.stock -= item.quantity;
                 await inventoryItem.save();
 
                 const itemTotal = inventoryItem.price * item.quantity;
-                const itemProfit = itemTotal * 0.2; // 20% default profit
-
-                totalAmount += itemTotal;
-                totalProfit += itemProfit;
+                calculatedTotal += itemTotal;
 
                 return {
                     part: itemType === 'part' ? item.part : undefined,
@@ -59,27 +50,40 @@ const createSale = async (req, res) => {
             })
         );
 
-        const initialPaid = Number(paidAmount) || totalAmount;
-        const dueAmount = totalAmount - initialPaid;
+        // Strict calculation of paid and due
+        const finalTotal = calculatedTotal;
+        const finalPaid = (paidAmount !== undefined && paidAmount !== null && paidAmount !== '') ? Number(paidAmount) : finalTotal;
+        const finalDue = finalTotal - finalPaid;
+        const status = finalDue > 0 ? 'Partial' : 'Paid';
+
+        console.log('Calculation Summary:', { finalTotal, finalPaid, finalDue, status });
 
         const sale = new Sale({
             customerName,
             items: processedItems,
-            totalAmount,
-            profit: totalProfit,
-            dueAmount: dueAmount,
-            paidAmount: initialPaid,
-            paymentStatus: dueAmount > 0 ? 'Partial' : 'Paid',
+            totalAmount: finalTotal,
+            profit: finalTotal * 0.2,
+            dueAmount: finalDue < 0 ? 0 : finalDue,
+            paidAmount: finalPaid,
+            paymentStatus: status,
             payments: [{
-                amount: initialPaid,
-                method: 'Cash', // Default for initial
+                amount: finalPaid,
+                method: 'Cash',
                 paymentDate: Date.now()
             }]
         });
 
         const createdSale = await sale.save();
+        console.log('Sale Saved in DB:', {
+            id: createdSale._id,
+            due: createdSale.dueAmount,
+            status: createdSale.paymentStatus,
+            paid: createdSale.paidAmount
+        });
+
         res.status(201).json(createdSale);
     } catch (error) {
+        console.error('SERVER ERROR in createSale:', error.message);
         res.status(400).json({ message: error.message });
     }
 };
