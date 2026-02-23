@@ -76,7 +76,7 @@ const Rentals = () => {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this rental contract? This will revert the machine stock.')) {
             try {
-                await api.delete(`/rentals/remove/${id}`);
+                await api.delete(`/rentals/delete-contract/${id}`);
                 fetchData();
             } catch (err) {
                 const errorMsg = err.response?.data?.message || err.message || 'Unknown error';

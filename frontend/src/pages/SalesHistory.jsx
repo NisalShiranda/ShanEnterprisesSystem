@@ -19,6 +19,13 @@ const SalesHistory = () => {
     const [sales, setSales] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedSale, setSelectedSale] = useState(null);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [paymentData, setPaymentData] = useState({
+        amount: '',
+        method: 'Cash',
+        paymentDate: new Date().toISOString().split('T')[0]
+    });
 
     useEffect(() => {
         fetchSales();
@@ -44,6 +51,24 @@ const SalesHistory = () => {
             } catch (err) {
                 alert(err.response?.data?.message || 'Error deleting transaction');
             }
+        }
+    };
+
+    const handleRecordPayment = async (e) => {
+        e.preventDefault();
+        try {
+            await api.post(`/sales/${selectedSale._id}/payment`, paymentData);
+            setShowPaymentModal(false);
+            setPaymentData({
+                amount: '',
+                method: 'Cash',
+                paymentDate: new Date().toISOString().split('T')[0]
+            });
+            fetchSales();
+            alert('Payment recorded successfully');
+        } catch (err) {
+            console.error('Error recording payment:', err);
+            alert(err.response?.data?.message || 'Error recording payment');
         }
     };
 
@@ -162,6 +187,19 @@ const SalesHistory = () => {
                                         >
                                             <Eye size={18} />
                                         </button>
+                                        {sale.dueAmount > 0 && (
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedSale(sale);
+                                                    setPaymentData({ ...paymentData, amount: sale.dueAmount });
+                                                    setShowPaymentModal(true);
+                                                }}
+                                                className="p-2 text-emerald-500 hover:text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-xl hover:border-emerald-200 hover:shadow-md transition-all active:scale-95"
+                                                title="Record Payment"
+                                            >
+                                                <DollarSign size={18} />
+                                            </button>
+                                        )}
                                         <button
                                             onClick={() => handleDelete(sale._id)}
                                             className="p-2 text-slate-400 hover:text-rose-600 bg-white border border-slate-100 rounded-xl hover:border-rose-100 hover:shadow-md transition-all active:scale-95"

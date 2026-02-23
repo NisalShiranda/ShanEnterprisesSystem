@@ -6,7 +6,7 @@ const Machine = require('../models/Machine');
 // @route   POST /api/sales
 // @access  Private
 const createSale = async (req, res) => {
-    const { customerName, items, dueAmount } = req.body;
+    const { customerName, items, paidAmount } = req.body;
 
     if (items && items.length === 0) {
         res.status(400).json({ message: 'No sale items' });
@@ -59,19 +59,65 @@ const createSale = async (req, res) => {
             })
         );
 
+        const initialPaid = Number(paidAmount) || totalAmount;
+        const dueAmount = totalAmount - initialPaid;
+
         const sale = new Sale({
             customerName,
             items: processedItems,
             totalAmount,
             profit: totalProfit,
-            dueAmount: dueAmount || 0,
+            dueAmount: dueAmount,
+            paidAmount: initialPaid,
             paymentStatus: dueAmount > 0 ? 'Partial' : 'Paid',
+            payments: [{
+                amount: initialPaid,
+                method: 'Cash', // Default for initial
+                paymentDate: Date.now()
+            }]
         });
 
         const createdSale = await sale.save();
         res.status(201).json(createdSale);
     } catch (error) {
         res.status(400).json({ message: error.message });
+    }
+};
+
+// @desc    Record payment for an existing sale
+// @route   POST /api/sales/:id/payment
+// @access  Private
+const recordSalePayment = async (req, res) => {
+    const { amount, method, paymentDate } = req.body;
+
+    try {
+        const sale = await Sale.findById(req.params.id);
+
+        if (sale) {
+            const paymentAmount = Number(amount);
+            sale.paidAmount += paymentAmount;
+            sale.dueAmount -= paymentAmount;
+
+            if (sale.dueAmount <= 0) {
+                sale.dueAmount = 0;
+                sale.paymentStatus = 'Paid';
+            } else {
+                sale.paymentStatus = 'Partial';
+            }
+
+            sale.payments.push({
+                amount: paymentAmount,
+                method: method || 'Cash',
+                paymentDate: paymentDate || Date.now()
+            });
+
+            const updatedSale = await sale.save();
+            res.json(updatedSale);
+        } else {
+            res.status(404).json({ message: 'Sale not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -88,17 +134,14 @@ const getSales = async (req, res) => {
 // @access  Private
 const getSaleById = async (req, res) => {
     try {
-        console.log('Fetching sale with ID:', req.params.id);
         const sale = await Sale.findById(req.params.id).populate('items.part items.machine', 'name category');
 
         if (sale) {
             res.json(sale);
         } else {
-            console.log('Sale not found for ID:', req.params.id);
             res.status(404).json({ message: 'Sale not found' });
         }
     } catch (error) {
-        console.error('Error fetching sale by ID:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -141,4 +184,4 @@ const deleteSale = async (req, res) => {
     }
 };
 
-module.exports = { createSale, getSales, getSaleById, deleteSale };
+module.exports = { createSale, getSales, getSaleById, deleteSale, recordSalePayment };

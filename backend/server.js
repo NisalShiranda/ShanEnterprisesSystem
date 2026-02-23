@@ -23,6 +23,9 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+// Global Diagnostic Route
+app.get('/api/test-server', (req, res) => res.json({ message: 'Backend is reachable', time: new Date() }));
+
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/machines', machineRoutes);

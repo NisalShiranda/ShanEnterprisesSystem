@@ -16,6 +16,6 @@ router.get('/', protect, getRentals);
 
 router.put('/:id/renew', protect, renewRental);
 router.post('/:id/payment', protect, recordPayment);
-router.delete('/remove/:id', protect, deleteRental);
+router.delete('/delete-contract/:id', protect, deleteRental);
 
 module.exports = router;

@@ -12,7 +12,7 @@ const Sales = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [cart, setCart] = useState([]);
     const [customerName, setCustomerName] = useState('');
-    const [dueAmount, setDueAmount] = useState(0);
+    const [paidAmount, setPaidAmount] = useState(0);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(null);
     const [printMode, setPrintMode] = useState('invoice'); // 'invoice' or 'gatepass'
@@ -92,6 +92,11 @@ const Sales = () => {
 
     const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
+    // Update paidAmount whenever total changes if it's the first time
+    useEffect(() => {
+        setPaidAmount(total);
+    }, [total]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (cart.length === 0) return alert('Cart is empty');
@@ -107,12 +112,12 @@ const Sales = () => {
                     price: i.price,
                     quantity: i.quantity
                 })),
-                dueAmount
+                paidAmount
             });
             setSuccess(data);
             setCart([]);
             setCustomerName('');
-            setDueAmount(0);
+            setPaidAmount(0);
         } catch (err) {
             alert(err.response?.data?.message || 'Error processing sale');
         } finally {
@@ -467,14 +472,19 @@ const Sales = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 text-rose-500">Credit / Due Amount</label>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 text-emerald-500">Deposit / Paid Amount</label>
                                 <input
                                     type="number"
-                                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-rose-50 focus:border-rose-100 transition-all text-xs font-bold text-rose-600"
-                                    value={dueAmount}
-                                    onChange={(e) => setDueAmount(Number(e.target.value))}
+                                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-emerald-50 focus:border-emerald-100 transition-all text-xs font-bold text-emerald-600"
+                                    value={paidAmount}
+                                    onChange={(e) => setPaidAmount(Number(e.target.value))}
                                     placeholder="0.00"
                                 />
+                                {paidAmount < total && (
+                                    <p className="mt-1 ml-1 text-[10px] font-bold text-rose-500 uppercase tracking-tight italic">
+                                        Balance Due: LKR {(total - paidAmount).toLocaleString()}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="pt-4 flex flex-col items-center">

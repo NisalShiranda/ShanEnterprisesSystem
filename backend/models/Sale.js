@@ -43,6 +43,18 @@ const saleSchema = mongoose.Schema(
             required: true,
             default: 'Paid', // Paid, Partial, Due
         },
+        paidAmount: {
+            type: Number,
+            required: true,
+            default: 0,
+        },
+        payments: [
+            {
+                amount: { type: Number, required: true },
+                method: { type: String, default: 'Cash' },
+                paymentDate: { type: Date, default: Date.now }
+            }
+        ]
     },
     {
         timestamps: true,
