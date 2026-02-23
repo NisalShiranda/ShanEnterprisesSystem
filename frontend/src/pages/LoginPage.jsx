@@ -12,11 +12,6 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const { login, user } = useAuth();
 
-    React.useEffect(() => {
-        if (user) {
-            navigate('/dashboard');
-        }
-    }, [user, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

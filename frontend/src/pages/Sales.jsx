@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { ShoppingCart, Plus, Minus, Trash2, Printer, CheckCircle, Package, HardHat, Search } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { ShoppingCart, Plus, Minus, Trash2, Printer, CheckCircle, Package, HardHat, Search, ArrowLeft } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 const Sales = () => {
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [parts, setParts] = useState([]);
     const [machines, setMachines] = useState([]);
@@ -276,6 +277,13 @@ const Sales = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => navigate('/sales-history')}
+                            className="flex items-center gap-2 px-4 py-3 text-slate-400 hover:text-slate-900 text-xs font-black uppercase tracking-widest transition-colors mr-2"
+                        >
+                            <ArrowLeft size={16} />
+                            Back to History
+                        </button>
                         <button
                             onClick={() => handlePrint('invoice')}
                             className="flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95"

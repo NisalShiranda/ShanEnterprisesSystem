@@ -6,8 +6,13 @@ const Machines = () => {
     const [inventory, setInventory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState('all');
+    const [showFilterDropdown, setShowFilterDropdown] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [itemType, setItemType] = useState('machine'); // Default to machine
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+
     const [formData, setFormData] = useState({
         name: '',
         price: '',
@@ -39,17 +44,41 @@ const Machines = () => {
         fetchInventory();
     }, []);
 
-    const handleCreate = async (e) => {
+    const handleEdit = (item) => {
+        setItemType(item.type);
+        setFormData({
+            name: item.name,
+            price: item.price,
+            rentalPricePerMonth: item.rentalPricePerMonth || '',
+            stock: item.stock,
+            description: item.description || ''
+        });
+        setEditingId(item._id);
+        setIsEditing(true);
+        setShowModal(true);
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const endpoint = itemType === 'machine' ? '/machines' : '/parts';
-            await api.post(endpoint, formData);
+            if (isEditing) {
+                await api.put(`${endpoint}/${editingId}`, formData);
+            } else {
+                await api.post(endpoint, formData);
+            }
             setShowModal(false);
-            setFormData({ name: '', price: '', rentalPricePerMonth: '', stock: '', description: '' });
+            resetForm();
             fetchInventory();
         } catch (err) {
-            alert(err.response?.data?.message || `Error creating ${itemType}`);
+            alert(err.response?.data?.message || `Error ${isEditing ? 'updating' : 'creating'} ${itemType}`);
         }
+    };
+
+    const resetForm = () => {
+        setFormData({ name: '', price: '', rentalPricePerMonth: '', stock: '', description: '' });
+        setIsEditing(false);
+        setEditingId(null);
     };
 
     const handleDelete = async (item) => {
@@ -64,10 +93,12 @@ const Machines = () => {
         }
     };
 
-    const filteredInventory = inventory.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.type.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredInventory = inventory.filter(item => {
+        const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.type.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesFilter = filterType === 'all' || item.type === filterType;
+        return matchesSearch && matchesFilter;
+    });
 
     return (
         <div>
@@ -78,6 +109,7 @@ const Machines = () => {
                 </div>
                 <button
                     onClick={() => {
+                        resetForm();
                         setItemType('machine');
                         setShowModal(true);
                     }}
@@ -100,10 +132,37 @@ const Machines = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 transition">
-                        <Filter size={18} />
-                        Filter
-                    </button>
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                            className={`flex items-center gap-2 px-4 py-2.5 border rounded-xl transition font-bold text-xs uppercase tracking-wider ${filterType !== 'all' ? 'bg-black text-white border-black' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                                }`}
+                        >
+                            <Filter size={16} />
+                            {filterType === 'all' ? 'Filter' : filterType}
+                        </button>
+
+                        {showFilterDropdown && (
+                            <>
+                                <div className="fixed inset-0 z-10" onClick={() => setShowFilterDropdown(false)}></div>
+                                <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-100 rounded-xl shadow-xl z-20 py-2 animate-in fade-in zoom-in duration-200">
+                                    {['all', 'machine', 'part'].map((type) => (
+                                        <button
+                                            key={type}
+                                            onClick={() => {
+                                                setFilterType(type);
+                                                setShowFilterDropdown(false);
+                                            }}
+                                            className={`w-full text-left px-4 py-2 text-xs font-bold uppercase tracking-widest transition-colors ${filterType === type ? 'bg-slate-50 text-black' : 'text-slate-500 hover:bg-slate-50 hover:text-black'
+                                                }`}
+                                        >
+                                            {type}
+                                        </button>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -147,7 +206,11 @@ const Machines = () => {
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex justify-end gap-2 text-slate-400">
-                                            <button className="p-2 hover:text-black transition hover:bg-slate-100 rounded-lg"><Edit2 size={16} /></button>
+                                            <button
+                                                onClick={() => handleEdit(item)}
+                                                className="p-2 hover:text-black transition hover:bg-slate-100 rounded-lg">
+                                                <Edit2 size={16} />
+                                            </button>
                                             <button onClick={() => handleDelete(item)} className="p-2 text-slate-400 hover:text-red-500 transition"><Trash2 size={18} /></button>
                                         </div>
                                     </td>
@@ -162,10 +225,10 @@ const Machines = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden">
                         <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                            <h3 className="text-xl font-bold text-slate-800">Add New Inventory</h3>
+                            <h3 className="text-xl font-bold text-slate-800">{isEditing ? 'Edit Item' : 'Add New Inventory'}</h3>
                             <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600">✕</button>
                         </div>
-                        <form onSubmit={handleCreate} className="p-6 space-y-4">
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="col-span-2">
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Item Type</label>
@@ -178,12 +241,14 @@ const Machines = () => {
                                                     value={type}
                                                     checked={itemType === type}
                                                     onChange={(e) => setItemType(e.target.value)}
-                                                    className="w-4 h-4 text-black border-slate-300 focus:ring-black"
+                                                    disabled={isEditing}
+                                                    className="w-4 h-4 text-black border-slate-300 focus:ring-black disabled:opacity-50"
                                                 />
-                                                <span className="text-sm font-semibold capitalize">{type}</span>
+                                                <span className={`text-sm font-semibold capitalize ${isEditing ? 'text-slate-400' : ''}`}>{type}</span>
                                             </label>
                                         ))}
                                     </div>
+                                    {isEditing && <p className="text-[10px] text-slate-400 mt-1">* Item type cannot be changed after creation</p>}
                                 </div>
                                 <div className="col-span-2">
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
@@ -244,7 +309,7 @@ const Machines = () => {
                                     type="submit"
                                     className="px-8 py-2.5 bg-black text-white rounded-xl hover:bg-slate-800 transition-all font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-slate-200"
                                 >
-                                    Save Inventory
+                                    {isEditing ? 'Update Inventory' : 'Save Inventory'}
                                 </button>
                             </div>
                         </form>
