@@ -12,7 +12,9 @@ import {
     Clock,
     CheckCircle2,
     AlertCircle,
-    Trash2
+    Trash2,
+    Minus,
+    X
 } from 'lucide-react';
 
 const SalesHistory = () => {
@@ -93,140 +95,219 @@ const SalesHistory = () => {
     );
 
     return (
-        <div className="space-y-6 max-w-7xl mx-auto">
-            {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase flex items-center gap-3">
-                        <History className="text-slate-900" size={28} />
-                        Sales Ledger
-                    </h1>
-                    <p className="text-sm text-slate-400 font-bold tracking-widest uppercase mt-1">Audit trail of all transactions</p>
+        <>
+            <div className="space-y-6 max-w-7xl mx-auto">
+                {/* Header Area */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase flex items-center gap-3">
+                            <History className="text-slate-900" size={28} />
+                            Sales Ledger
+                        </h1>
+                        <p className="text-sm text-slate-400 font-bold tracking-widest uppercase mt-1">Audit trail of all transactions</p>
+                    </div>
+
+                    <div className="relative group min-w-[300px]">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 transition-colors" size={18} />
+                        <input
+                            type="text"
+                            placeholder="Search by customer or invoice..."
+                            className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-4 text-sm font-medium outline-none focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition-all shadow-sm"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
                 </div>
 
-                <div className="relative group min-w-[300px]">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-900 transition-colors" size={18} />
-                    <input
-                        type="text"
-                        placeholder="Search by customer or invoice..."
-                        className="w-full bg-white border border-slate-200 rounded-2xl py-3 pl-12 pr-4 text-sm font-medium outline-none focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition-all shadow-sm"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
-            </div>
-
-            {/* Content Table */}
-            <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-slate-50/50">
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Transaction Date</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Client Name</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Items</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Amount</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest font-black">Due</th>
-                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                <th className="px-6 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
-                            {filteredSales.map((sale) => (
-                                <tr key={sale._id} className="hover:bg-slate-50/50 transition-colors group">
-                                    <td className="px-6 py-5">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-white transition-colors">
-                                                <Calendar size={14} />
+                {/* Content Table */}
+                <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50/50">
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Transaction Date</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Client Name</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Items</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Amount</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest font-black">Due</th>
+                                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                    <th className="px-6 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {filteredSales.map((sale) => (
+                                    <tr key={sale._id} className="hover:bg-slate-50/50 transition-colors group">
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-white transition-colors">
+                                                    <Calendar size={14} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-black text-slate-900 tracking-tight">
+                                                        {new Date(sale.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                    </p>
+                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">#{sale._id.slice(-8).toUpperCase()}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-xs font-black text-slate-900 tracking-tight">
-                                                    {new Date(sale.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                                </p>
-                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">#{sale._id.slice(-8).toUpperCase()}</p>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-7 h-7 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 font-black text-[10px]">
+                                                    {sale.customerName.charAt(0)}
+                                                </div>
+                                                <span className="text-sm font-bold text-slate-700 tracking-tight">{sale.customerName}</span>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-7 h-7 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 font-black text-[10px]">
-                                                {sale.customerName.charAt(0)}
+                                        </td>
+                                        <td className="px-6 py-5 text-center">
+                                            <span className="px-2 py-1 bg-slate-100 rounded-lg text-xs font-black text-slate-600">
+                                                {sale.items.length}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-[10px] font-black text-slate-400">LKR</span>
+                                                <span className="text-sm font-black text-slate-900 italic tracking-tighter">{sale.totalAmount.toLocaleString()}</span>
                                             </div>
-                                            <span className="text-sm font-bold text-slate-700 tracking-tight">{sale.customerName}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-5 text-center">
-                                        <span className="px-2 py-1 bg-slate-100 rounded-lg text-xs font-black text-slate-600">
-                                            {sale.items.length}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <div className="flex items-center gap-1">
-                                            <span className="text-[10px] font-black text-slate-400">LKR</span>
-                                            <span className="text-sm font-black text-slate-900 italic tracking-tighter">{sale.totalAmount.toLocaleString()}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <span className={`text-xs font-black tracking-tighter ${sale.dueAmount > 0 ? 'text-rose-500 italic' : 'text-slate-300'}`}>
-                                            {sale.dueAmount > 0 ? `LKR ${sale.dueAmount.toLocaleString()}` : '--'}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusStyle(sale.paymentStatus)}`}>
-                                            {sale.paymentStatus === 'Paid' && <CheckCircle2 size={10} />}
-                                            {sale.paymentStatus === 'Partial' && <Clock size={10} />}
-                                            {sale.paymentStatus === 'Due' && <AlertCircle size={10} />}
-                                            {sale.paymentStatus}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-5 text-right flex justify-end gap-2">
-                                        <button
-                                            onClick={() => window.location.href = `/sales?id=${sale._id}`}
-                                            className="p-2 text-slate-400 hover:text-slate-900 bg-white border border-slate-100 rounded-xl hover:border-slate-300 hover:shadow-md transition-all active:scale-95"
-                                            title="View Details"
-                                        >
-                                            <Eye size={18} />
-                                        </button>
-                                        {sale.dueAmount > 0 && (
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex flex-col">
+                                                <span className={`text-xs font-black tracking-tighter ${sale.dueAmount > 0 ? 'text-rose-500 italic' : 'text-slate-400'}`}>
+                                                    LKR {Number(sale.dueAmount || 0).toLocaleString()}
+                                                </span>
+                                                {sale.dueAmount > 0 && (
+                                                    <span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest mt-0.5">Balance</span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusStyle(sale.paymentStatus)}`}>
+                                                {sale.paymentStatus === 'Paid' && <CheckCircle2 size={10} />}
+                                                {sale.paymentStatus === 'Partial' && <Clock size={10} />}
+                                                {sale.paymentStatus === 'Due' && <AlertCircle size={10} />}
+                                                {sale.paymentStatus}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 text-right flex justify-end gap-2">
                                             <button
-                                                onClick={() => {
-                                                    setSelectedSale(sale);
-                                                    setPaymentData({ ...paymentData, amount: sale.dueAmount });
-                                                    setShowPaymentModal(true);
-                                                }}
-                                                className="p-2 text-emerald-500 hover:text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-xl hover:border-emerald-200 hover:shadow-md transition-all active:scale-95"
-                                                title="Record Payment"
+                                                onClick={() => window.location.href = `/sales?id=${sale._id}`}
+                                                className="p-2 text-slate-400 hover:text-slate-900 bg-white border border-slate-100 rounded-xl hover:border-slate-300 hover:shadow-md transition-all active:scale-95"
+                                                title="View Details"
                                             >
-                                                <DollarSign size={18} />
+                                                <Eye size={18} />
                                             </button>
-                                        )}
-                                        <button
-                                            onClick={() => handleDelete(sale._id)}
-                                            className="p-2 text-slate-400 hover:text-rose-600 bg-white border border-slate-100 rounded-xl hover:border-rose-100 hover:shadow-md transition-all active:scale-95"
-                                            title="Delete Transaction"
-                                        >
-                                            <Trash2 size={18} />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                            {filteredSales.length === 0 && (
-                                <tr>
-                                    <td colSpan="7" className="px-6 py-20 text-center">
-                                        <div className="flex flex-col items-center">
-                                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-dashed border-slate-200">
-                                                <History className="text-slate-300" size={24} />
+                                            {sale.dueAmount > 0 && (
+                                                <button
+                                                    onClick={() => {
+                                                        setSelectedSale(sale);
+                                                        setPaymentData({ ...paymentData, amount: sale.dueAmount });
+                                                        setShowPaymentModal(true);
+                                                    }}
+                                                    className="p-2 text-emerald-500 hover:text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-xl hover:border-emerald-200 hover:shadow-md transition-all active:scale-95"
+                                                    title="Record Payment"
+                                                >
+                                                    <DollarSign size={18} />
+                                                </button>
+                                            )}
+                                            <button
+                                                onClick={() => handleDelete(sale._id)}
+                                                className="p-2 text-slate-400 hover:text-rose-600 bg-white border border-slate-100 rounded-xl hover:border-rose-100 hover:shadow-md transition-all active:scale-95"
+                                                title="Delete Transaction"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {filteredSales.length === 0 && (
+                                    <tr>
+                                        <td colSpan="7" className="px-6 py-20 text-center">
+                                            <div className="flex flex-col items-center">
+                                                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-dashed border-slate-200">
+                                                    <History className="text-slate-300" size={24} />
+                                                </div>
+                                                <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">No transactions found</p>
                                             </div>
-                                            <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">No transactions found</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            {/* Payment Modal */}
+            {showPaymentModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                            <div>
+                                <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">Record Payment</h3>
+                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Update balance for {selectedSale?.customerName}</p>
+                            </div>
+                            <button
+                                onClick={() => setShowPaymentModal(false)}
+                                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-white hover:text-slate-900 transition-all"
+                            >
+                                <Minus size={18} strokeWidth={3} />
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleRecordPayment} className="p-6 space-y-5">
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Payment Amount (LKR)</label>
+                                <input
+                                    type="number"
+                                    required
+                                    max={selectedSale?.dueAmount}
+                                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-emerald-50 focus:border-emerald-200 transition-all text-sm font-black text-emerald-600"
+                                    value={paymentData.amount}
+                                    onChange={(e) => setPaymentData({ ...paymentData, amount: e.target.value })}
+                                    placeholder="0.00"
+                                />
+                                <p className="mt-1.5 ml-1 text-[10px] font-bold text-slate-400 uppercase tracking-tight italic">
+                                    Current Due: LKR {selectedSale?.dueAmount.toLocaleString()}
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Method</label>
+                                    <select
+                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition-all text-xs font-bold"
+                                        value={paymentData.method}
+                                        onChange={(e) => setPaymentData({ ...paymentData, method: e.target.value })}
+                                    >
+                                        <option value="Cash">Cash</option>
+                                        <option value="Cheque">Cheque</option>
+                                        <option value="Bank Transfer">Bank Transfer</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Date</label>
+                                    <input
+                                        type="date"
+                                        required
+                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition-all text-[10px] font-bold"
+                                        value={paymentData.paymentDate}
+                                        onChange={(e) => setPaymentData({ ...paymentData, paymentDate: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="pt-2">
+                                <button
+                                    type="submit"
+                                    className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-slate-200 hover:bg-black transition-all hover:-translate-y-0.5 active:translate-y-0"
+                                >
+                                    Confirm Payment
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </>
     );
 };
 

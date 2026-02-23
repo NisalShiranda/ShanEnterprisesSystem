@@ -482,12 +482,26 @@ const Sales = () => {
                             <div>
                                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 text-emerald-500">Deposit / Paid Amount</label>
                                 <input
-                                    type="number"
+                                    type="text"
                                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-emerald-50 focus:border-emerald-100 transition-all text-xs font-bold text-emerald-600"
-                                    value={paidAmount}
+                                    value={paidAmount === '' ? '' : paidAmount}
                                     onChange={(e) => {
-                                        setPaidAmount(Number(e.target.value));
-                                        setIsManualPaid(true);
+                                        const val = e.target.value;
+                                        // Allow only numbers and empty string
+                                        if (val === '' || /^\d+$/.test(val)) {
+                                            setPaidAmount(val); // Keep as string while typing
+                                            setIsManualPaid(true);
+                                        }
+                                    }}
+                                    onFocus={(e) => {
+                                        // If it matches total and hasn't been manually edited yet, clear it
+                                        if (Number(paidAmount) === total && !isManualPaid) {
+                                            setPaidAmount('');
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                        // If left empty, set back to 0
+                                        if (paidAmount === '') setPaidAmount(0);
                                     }}
                                     placeholder="0.00"
                                 />

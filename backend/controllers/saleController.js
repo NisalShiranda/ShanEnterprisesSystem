@@ -16,7 +16,6 @@ const createSale = async (req, res) => {
     }
 
     try {
-        let calculatedTotal = 0;
         const processedItems = await Promise.all(
             items.map(async (item) => {
                 let inventoryItem;
@@ -37,9 +36,6 @@ const createSale = async (req, res) => {
                 inventoryItem.stock -= item.quantity;
                 await inventoryItem.save();
 
-                const itemTotal = inventoryItem.price * item.quantity;
-                calculatedTotal += itemTotal;
-
                 return {
                     part: itemType === 'part' ? item.part : undefined,
                     machine: itemType === 'machine' ? item.machine : undefined,
@@ -50,13 +46,17 @@ const createSale = async (req, res) => {
             })
         );
 
-        // Strict calculation of paid and due
-        const finalTotal = calculatedTotal;
-        const finalPaid = (paidAmount !== undefined && paidAmount !== null && paidAmount !== '') ? Number(paidAmount) : finalTotal;
-        const finalDue = finalTotal - finalPaid;
+        // SECURE CALCULATION: Sum all items AFTER processing to avoid race conditions
+        const finalTotal = processedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+
+        // Ensure paidAmount is treated as a number
+        const inputPaid = (paidAmount !== undefined && paidAmount !== null && paidAmount !== '') ? Number(paidAmount) : finalTotal;
+        const finalPaid = isNaN(inputPaid) ? finalTotal : inputPaid;
+
+        const finalDue = Math.max(0, finalTotal - finalPaid);
         const status = finalDue > 0 ? 'Partial' : 'Paid';
 
-        console.log('Calculation Summary:', { finalTotal, finalPaid, finalDue, status });
+        console.log('Final Totals:', { finalTotal, finalPaid, finalDue, status });
 
         const sale = new Sale({
             customerName,
