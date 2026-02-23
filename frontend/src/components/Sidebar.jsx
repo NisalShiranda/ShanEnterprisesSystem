@@ -16,7 +16,7 @@ const Sidebar = () => {
     const { logout } = useAuth();
 
     const navItems = [
-        { name: 'Overview', path: '/', icon: LayoutDashboard },
+        { name: 'Overview', path: '/dashboard', icon: LayoutDashboard },
         { name: 'Inventory', path: '/machines', icon: HardHat },
         { name: 'Sales Hub', path: '/sales', icon: ShoppingCart },
         { name: 'Sales History', path: '/sales-history', icon: History },

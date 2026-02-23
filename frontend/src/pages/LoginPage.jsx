@@ -10,7 +10,13 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, user } = useAuth();
+
+    React.useEffect(() => {
+        if (user) {
+            navigate('/dashboard');
+        }
+    }, [user, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -20,7 +26,7 @@ const LoginPage = () => {
         try {
             const { data } = await api.post('/users/login', { email, password });
             login(data);
-            navigate('/');
+            navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'Something went wrong');
         } finally {
