@@ -10,6 +10,7 @@ const partRoutes = require('./routes/partRoutes');
 const saleRoutes = require('./routes/saleRoutes');
 const rentalRoutes = require('./routes/rentalRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const customerRoutes = require('./routes/customerRoutes');
 
 // Load env vars
 dotenv.config();
@@ -33,6 +34,7 @@ app.use('/api/parts', partRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/rentals', rentalRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/customers', customerRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

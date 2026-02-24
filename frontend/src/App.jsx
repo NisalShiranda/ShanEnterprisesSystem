@@ -9,6 +9,7 @@ import Machines from './pages/Machines';
 import Sales from './pages/Sales';
 import SalesHistory from './pages/SalesHistory';
 import Rentals from './pages/Rentals';
+import Customers from './pages/Customers';
 import Layout from './components/Layout';
 
 const ProtectedRoute = ({ children }) => {
@@ -54,6 +55,12 @@ function App() {
           <Route path="/rentals" element={
             <ProtectedRoute>
               <Rentals />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/customers" element={
+            <ProtectedRoute>
+              <Customers />
             </ProtectedRoute>
           } />
         </Routes>

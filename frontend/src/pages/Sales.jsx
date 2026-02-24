@@ -17,6 +17,8 @@ const Sales = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(null);
     const [printMode, setPrintMode] = useState('invoice'); // 'invoice' or 'gatepass'
+    const [customers, setCustomers] = useState([]);
+    const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -27,6 +29,9 @@ const Sales = () => {
                 ]);
                 setParts(partsRes.data);
                 setMachines(machinesRes.data);
+
+                const customersRes = await api.get('/customers');
+                setCustomers(customersRes.data);
 
                 // Check if we are viewing a specific sale from history
                 const saleId = searchParams.get('id');
@@ -469,15 +474,48 @@ const Sales = () => {
                         </div>
 
                         <div className="space-y-4 pt-6 border-t border-slate-100">
-                            <div>
+                            <div className="relative group">
                                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Customer / Party Name</label>
-                                <input
-                                    type="text" required
-                                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition-all text-xs font-bold"
-                                    value={customerName}
-                                    onChange={(e) => setCustomerName(e.target.value)}
-                                    placeholder="Full name or company..."
-                                />
+                                <div className="relative">
+                                    <Search className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${showCustomerDropdown ? 'text-slate-900' : 'text-slate-300'}`} size={14} />
+                                    <input
+                                        type="text" required
+                                        className="w-full px-4 py-2.5 pl-10 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition-all text-xs font-bold uppercase placeholder:text-slate-300"
+                                        value={customerName}
+                                        onChange={(e) => {
+                                            setCustomerName(e.target.value);
+                                            setShowCustomerDropdown(true);
+                                        }}
+                                        onFocus={() => setShowCustomerDropdown(true)}
+                                        onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
+                                        placeholder="Full name or company..."
+                                    />
+                                </div>
+
+                                {showCustomerDropdown && (
+                                    <div className="absolute z-30 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-48 overflow-y-auto animate-in fade-in slide-in-from-top-2">
+                                        {customers
+                                            .filter(c => c.name.toLowerCase().includes(customerName.toLowerCase()))
+                                            .map(customer => (
+                                                <div
+                                                    key={customer._id}
+                                                    className="px-5 py-3 hover:bg-slate-50 cursor-pointer transition-colors border-b last:border-0 border-slate-50"
+                                                    onClick={() => {
+                                                        setCustomerName(customer.name);
+                                                        setShowCustomerDropdown(false);
+                                                    }}
+                                                >
+                                                    <p className="text-xs font-black text-slate-800 uppercase">{customer.name}</p>
+                                                    <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">{customer.phone || 'No phone'}</p>
+                                                </div>
+                                            ))}
+                                        {customers.filter(c => c.name.toLowerCase().includes(customerName.toLowerCase())).length === 0 && customerName && (
+                                            <div className="px-5 py-4 text-center">
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">New Customer: "{customerName}"</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 text-emerald-500">Deposit / Paid Amount</label>

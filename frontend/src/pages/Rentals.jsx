@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Calendar, Plus, RefreshCw, Printer, User, HardHat, DollarSign, History, ChevronRight, CheckCircle2, Clock, Trash2 } from 'lucide-react';
+import { Calendar, Plus, RefreshCw, Printer, User, HardHat, DollarSign, History, ChevronRight, CheckCircle2, Clock, Trash2, Search, X } from 'lucide-react';
 
 const Rentals = () => {
     const [rentals, setRentals] = useState([]);
@@ -16,6 +16,8 @@ const Rentals = () => {
         method: 'Cash',
         paymentDate: new Date().toISOString().split('T')[0]
     });
+    const [customers, setCustomers] = useState([]);
+    const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
     const [formData, setFormData] = useState({
         customerName: '',
         machineId: '',
@@ -26,12 +28,14 @@ const Rentals = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [rentalRes, machineRes] = await Promise.all([
+            const [rentalRes, machineRes, customerRes] = await Promise.all([
                 api.get('/rentals'),
-                api.get('/machines')
+                api.get('/machines'),
+                api.get('/customers')
             ]);
             setRentals(rentalRes.data);
             setMachines(machineRes.data.filter(m => m.stock > 0));
+            setCustomers(customerRes.data);
         } catch (err) {
             console.error('Error fetching rental data:', err);
         } finally {
@@ -324,15 +328,48 @@ const Rentals = () => {
                                 <button onClick={() => setShowModal(false)} className="text-slate-300 hover:text-slate-900 transition-colors bg-white w-8 h-8 rounded-full shadow-sm flex items-center justify-center">✕</button>
                             </div>
                             <form onSubmit={handleCreate} className="p-8 space-y-5">
-                                <div>
+                                <div className="relative group">
                                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Customer / Company Name</label>
-                                    <input
-                                        type="text" required
-                                        className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-200 transition text-sm font-bold"
-                                        value={formData.customerName}
-                                        onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-                                        placeholder="Enter customer name..."
-                                    />
+                                    <div className="relative">
+                                        <Search className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${showCustomerDropdown ? 'text-slate-900' : 'text-slate-300'}`} size={16} />
+                                        <input
+                                            type="text" required
+                                            className="w-full px-5 py-3.5 pl-12 bg-slate-50 border border-slate-100 rounded-2xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-200 transition text-sm font-bold uppercase placeholder:text-slate-300"
+                                            value={formData.customerName}
+                                            onChange={(e) => {
+                                                setFormData({ ...formData, customerName: e.target.value });
+                                                setShowCustomerDropdown(true);
+                                            }}
+                                            onFocus={() => setShowCustomerDropdown(true)}
+                                            onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
+                                            placeholder="Type or select client..."
+                                        />
+                                    </div>
+
+                                    {showCustomerDropdown && (
+                                        <div className="absolute z-30 w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-48 overflow-y-auto animate-in fade-in slide-in-from-top-2">
+                                            {customers
+                                                .filter(c => c.name.toLowerCase().includes(formData.customerName.toLowerCase()))
+                                                .map(customer => (
+                                                    <div
+                                                        key={customer._id}
+                                                        className="px-5 py-3 hover:bg-slate-50 cursor-pointer transition-colors border-b last:border-0 border-slate-50"
+                                                        onClick={() => {
+                                                            setFormData({ ...formData, customerName: customer.name });
+                                                            setShowCustomerDropdown(false);
+                                                        }}
+                                                    >
+                                                        <p className="text-xs font-black text-slate-800 uppercase">{customer.name}</p>
+                                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{customer.phone || 'No phone'}</p>
+                                                    </div>
+                                                ))}
+                                            {customers.filter(c => c.name.toLowerCase().includes(formData.customerName.toLowerCase())).length === 0 && formData.customerName && (
+                                                <div className="px-5 py-4 text-center">
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">New Customer: "{formData.customerName}"</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Assign Machine</label>

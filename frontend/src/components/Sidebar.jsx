@@ -8,7 +8,8 @@ import {
     CalendarDays,
     LogOut,
     ChevronRight,
-    History
+    History,
+    Users
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -17,10 +18,11 @@ const Sidebar = () => {
 
     const navItems = [
         { name: 'Overview', path: '/dashboard', icon: LayoutDashboard },
-        { name: 'Inventory', path: '/machines', icon: HardHat },
+        { name: 'Customers', path: '/customers', icon: Users },
         { name: 'Sales Hub', path: '/sales', icon: ShoppingCart },
         { name: 'Sales History', path: '/sales-history', icon: History },
         { name: 'Rentals', path: '/rentals', icon: CalendarDays },
+        { name: 'Inventory', path: '/machines', icon: HardHat },
     ];
 
     return (

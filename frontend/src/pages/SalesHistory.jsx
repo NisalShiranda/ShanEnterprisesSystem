@@ -14,7 +14,9 @@ import {
     AlertCircle,
     Trash2,
     Minus,
-    X
+    X,
+    ChevronDown,
+    ChevronUp
 } from 'lucide-react';
 
 const SalesHistory = () => {
@@ -79,6 +81,15 @@ const SalesHistory = () => {
         sale._id.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const [expandedSales, setExpandedSales] = useState({});
+
+    const toggleExpand = (id) => {
+        setExpandedSales(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
     const getStatusStyle = (status) => {
         switch (status) {
             case 'Paid': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
@@ -136,87 +147,147 @@ const SalesHistory = () => {
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {filteredSales.map((sale) => (
-                                    <tr key={sale._id} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-white transition-colors">
-                                                    <Calendar size={14} />
+                                    <React.Fragment key={sale._id}>
+                                        <tr key={sale._id} className="hover:bg-slate-50/50 transition-colors group">
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-3">
+                                                    <button
+                                                        onClick={() => toggleExpand(sale._id)}
+                                                        className="p-1 hover:bg-white rounded-md transition-all text-slate-400 hover:text-slate-900"
+                                                    >
+                                                        {expandedSales[sale._id] ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                                    </button>
+                                                    <div className="p-2 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-white transition-colors">
+                                                        <Calendar size={14} />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs font-black text-slate-900 tracking-tight">
+                                                            {new Date(sale.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                        </p>
+                                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">#{sale._id.slice(-8).toUpperCase()}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="text-xs font-black text-slate-900 tracking-tight">
-                                                        {new Date(sale.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                                    </p>
-                                                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">#{sale._id.slice(-8).toUpperCase()}</p>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-7 h-7 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 font-black text-[10px]">
+                                                        {sale.customerName.charAt(0)}
+                                                    </div>
+                                                    <span className="text-sm font-bold text-slate-700 tracking-tight">{sale.customerName}</span>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-7 h-7 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-500 font-black text-[10px]">
-                                                    {sale.customerName.charAt(0)}
-                                                </div>
-                                                <span className="text-sm font-bold text-slate-700 tracking-tight">{sale.customerName}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5 text-center">
-                                            <span className="px-2 py-1 bg-slate-100 rounded-lg text-xs font-black text-slate-600">
-                                                {sale.items.length}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-1">
-                                                <span className="text-[10px] font-black text-slate-400">LKR</span>
-                                                <span className="text-sm font-black text-slate-900 italic tracking-tighter">{sale.totalAmount.toLocaleString()}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="flex flex-col">
-                                                <span className={`text-xs font-black tracking-tighter ${sale.dueAmount > 0 ? 'text-rose-500 italic' : 'text-slate-400'}`}>
-                                                    LKR {Number(sale.dueAmount || 0).toLocaleString()}
+                                            </td>
+                                            <td className="px-6 py-5 text-center">
+                                                <span className="px-2 py-1 bg-slate-100 rounded-lg text-xs font-black text-slate-600">
+                                                    {sale.items.length}
                                                 </span>
-                                                {sale.dueAmount > 0 && (
-                                                    <span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest mt-0.5">Balance</span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusStyle(sale.paymentStatus)}`}>
-                                                {sale.paymentStatus === 'Paid' && <CheckCircle2 size={10} />}
-                                                {sale.paymentStatus === 'Partial' && <Clock size={10} />}
-                                                {sale.paymentStatus === 'Due' && <AlertCircle size={10} />}
-                                                {sale.paymentStatus}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5 text-right flex justify-end gap-2">
-                                            <button
-                                                onClick={() => window.location.href = `/sales?id=${sale._id}`}
-                                                className="p-2 text-slate-400 hover:text-slate-900 bg-white border border-slate-100 rounded-xl hover:border-slate-300 hover:shadow-md transition-all active:scale-95"
-                                                title="View Details"
-                                            >
-                                                <Eye size={18} />
-                                            </button>
-                                            {sale.dueAmount > 0 && (
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-1">
+                                                    <span className="text-[10px] font-black text-slate-400">LKR</span>
+                                                    <span className="text-sm font-black text-slate-900 italic tracking-tighter">{sale.totalAmount.toLocaleString()}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="flex flex-col">
+                                                    <span className={`text-xs font-black tracking-tighter ${sale.dueAmount > 0 ? 'text-rose-500 italic' : 'text-slate-400'}`}>
+                                                        LKR {Number(sale.dueAmount || 0).toLocaleString()}
+                                                    </span>
+                                                    {sale.dueAmount > 0 && (
+                                                        <span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest mt-0.5">Balance</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusStyle(sale.paymentStatus)}`}>
+                                                    {sale.paymentStatus === 'Paid' && <CheckCircle2 size={10} />}
+                                                    {sale.paymentStatus === 'Partial' && <Clock size={10} />}
+                                                    {sale.paymentStatus === 'Due' && <AlertCircle size={10} />}
+                                                    {sale.paymentStatus}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5 text-right flex justify-end gap-2">
                                                 <button
-                                                    onClick={() => {
-                                                        setSelectedSale(sale);
-                                                        setPaymentData({ ...paymentData, amount: sale.dueAmount });
-                                                        setShowPaymentModal(true);
-                                                    }}
-                                                    className="p-2 text-emerald-500 hover:text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-xl hover:border-emerald-200 hover:shadow-md transition-all active:scale-95"
-                                                    title="Record Payment"
+                                                    onClick={() => window.location.href = `/sales?id=${sale._id}`}
+                                                    className="p-2 text-slate-400 hover:text-slate-900 bg-white border border-slate-100 rounded-xl hover:border-slate-300 hover:shadow-md transition-all active:scale-95"
+                                                    title="View Details"
                                                 >
-                                                    <DollarSign size={18} />
+                                                    <Eye size={18} />
                                                 </button>
-                                            )}
-                                            <button
-                                                onClick={() => handleDelete(sale._id)}
-                                                className="p-2 text-slate-400 hover:text-rose-600 bg-white border border-slate-100 rounded-xl hover:border-rose-100 hover:shadow-md transition-all active:scale-95"
-                                                title="Delete Transaction"
-                                            >
-                                                <Trash2 size={18} />
-                                            </button>
-                                        </td>
-                                    </tr>
+                                                {sale.dueAmount > 0 && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedSale(sale);
+                                                            setPaymentData({ ...paymentData, amount: sale.dueAmount });
+                                                            setShowPaymentModal(true);
+                                                        }}
+                                                        className="p-2 text-emerald-500 hover:text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-xl hover:border-emerald-200 hover:shadow-md transition-all active:scale-95"
+                                                        title="Record Payment"
+                                                    >
+                                                        <DollarSign size={18} />
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => handleDelete(sale._id)}
+                                                    className="p-2 text-slate-400 hover:text-rose-600 bg-white border border-slate-100 rounded-xl hover:border-rose-100 hover:shadow-md transition-all active:scale-95"
+                                                    title="Delete Transaction"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </td>
+                                        </tr>
+
+                                        {/* Expanded Payment History */}
+                                        {expandedSales[sale._id] && (
+                                            <tr>
+                                                <td colSpan="7" className="px-12 py-4 bg-slate-50/80 border-y border-slate-100/50">
+                                                    <div className="animate-in slide-in-from-top-2 duration-200">
+                                                        <div className="flex items-center gap-2 mb-3">
+                                                            <div className="w-1.5 h-4 bg-emerald-500 rounded-full" />
+                                                            <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Payment History Breakdown</h4>
+                                                        </div>
+                                                        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                                                            <table className="w-full text-left">
+                                                                <thead>
+                                                                    <tr className="bg-slate-50/50 border-b border-slate-100">
+                                                                        <th className="px-4 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Paid On</th>
+                                                                        <th className="px-4 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">Method</th>
+                                                                        <th className="px-4 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody className="divide-y divide-slate-50">
+                                                                    {sale.payments?.map((payment, idx) => (
+                                                                        <tr key={idx} className="hover:bg-slate-50/30 transition-colors">
+                                                                            <td className="px-4 py-2.5 text-[10px] font-bold text-slate-600">
+                                                                                {new Date(payment.paymentDate).toLocaleDateString('en-GB', {
+                                                                                    day: '2-digit', month: 'short', year: 'numeric',
+                                                                                    hour: '2-digit', minute: '2-digit'
+                                                                                })}
+                                                                            </td>
+                                                                            <td className="px-4 py-2.5">
+                                                                                <span className="px-2 py-0.5 bg-slate-100 rounded-md text-[9px] font-black text-slate-500 uppercase tracking-tight">
+                                                                                    {payment.method}
+                                                                                </span>
+                                                                            </td>
+                                                                            <td className="px-4 py-2.5 text-right text-[10px] font-black text-emerald-600 italic">
+                                                                                LKR {payment.amount.toLocaleString()}
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))}
+                                                                    {(!sale.payments || sale.payments.length === 0) && (
+                                                                        <tr>
+                                                                            <td colSpan="3" className="px-4 py-6 text-center text-xs font-bold text-slate-400 uppercase italic">
+                                                                                No payment records found
+                                                                            </td>
+                                                                        </tr>
+                                                                    )}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
                                 ))}
                                 {filteredSales.length === 0 && (
                                     <tr>
