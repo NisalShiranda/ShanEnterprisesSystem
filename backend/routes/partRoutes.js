@@ -9,11 +9,11 @@ const {
 } = require('../controllers/partController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
-router.route('/').get(getParts).post(protect, admin, createPart);
+router.route('/').get(getParts).post(protect, createPart);
 router
     .route('/:id')
     .get(getPartById)
-    .put(protect, admin, updatePart)
-    .delete(protect, admin, deletePart);
+    .put(protect, updatePart)
+    .delete(protect, deletePart);
 
 module.exports = router;

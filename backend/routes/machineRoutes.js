@@ -9,11 +9,11 @@ const {
 } = require('../controllers/machineController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
-router.route('/').get(getMachines).post(protect, admin, createMachine);
+router.route('/').get(getMachines).post(protect, createMachine);
 router
     .route('/:id')
     .get(getMachineById)
-    .put(protect, admin, updateMachine)
-    .delete(protect, admin, deleteMachine);
+    .put(protect, updateMachine)
+    .delete(protect, deleteMachine);
 
 module.exports = router;
