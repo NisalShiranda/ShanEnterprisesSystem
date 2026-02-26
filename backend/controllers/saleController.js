@@ -1,6 +1,7 @@
 const Sale = require('../models/Sale');
 const Part = require('../models/Part');
 const Machine = require('../models/Machine');
+const Counter = require('../models/Counter');
 
 // @desc    Create new sale
 // @route   POST /api/sales
@@ -56,6 +57,18 @@ const createSale = async (req, res) => {
         const finalDue = Math.max(0, finalTotal - finalPaid);
         const status = finalDue > 0 ? 'Partial' : 'Paid';
 
+        // Generate sequential numbers
+        const counter = await Counter.findByIdAndUpdate(
+            { _id: 'saleNumber' },
+            { $inc: { seq: 1 } },
+            { new: true, upsert: true }
+        );
+
+        const sequentialNumber = counter.seq.toString().padStart(3, '0');
+        const invoiceNumber = sequentialNumber;
+        const gatepassNumber = sequentialNumber;
+
+        console.log('Generated Numbers:', { invoiceNumber, gatepassNumber });
         console.log('Final Totals:', { finalTotal, finalPaid, finalDue, status });
 
         const sale = new Sale({
@@ -66,6 +79,8 @@ const createSale = async (req, res) => {
             dueAmount: finalDue < 0 ? 0 : finalDue,
             paidAmount: finalPaid,
             paymentStatus: status,
+            invoiceNumber,
+            gatepassNumber,
             payments: [{
                 amount: finalPaid,
                 method: 'Cash',

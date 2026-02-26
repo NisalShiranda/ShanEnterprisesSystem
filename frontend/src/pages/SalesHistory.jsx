@@ -164,7 +164,7 @@ const SalesHistory = () => {
                                                         <p className="text-xs font-black text-slate-900 tracking-tight">
                                                             {new Date(sale.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                                                         </p>
-                                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">#{sale._id.slice(-8).toUpperCase()}</p>
+                                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{sale.invoiceNumber ? `INV ${sale.invoiceNumber}` : `#${sale._id.slice(-8).toUpperCase()}`}</p>
                                                     </div>
                                                 </div>
                                             </td>

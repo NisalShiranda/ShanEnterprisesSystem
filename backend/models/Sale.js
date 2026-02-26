@@ -54,7 +54,15 @@ const saleSchema = mongoose.Schema(
                 method: { type: String, default: 'Cash' },
                 paymentDate: { type: Date, default: Date.now }
             }
-        ]
+        ],
+        invoiceNumber: {
+            type: String,
+            required: true,
+        },
+        gatepassNumber: {
+            type: String,
+            required: true,
+        }
     },
     {
         timestamps: true,

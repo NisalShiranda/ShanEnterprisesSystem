@@ -139,9 +139,20 @@ const Sales = () => {
     };
 
     const handlePrint = (mode) => {
+        const originalTitle = document.title;
+        const date = new Date(success.createdAt).toLocaleDateString('en-GB').replace(/\//g, '-');
+        const num = mode === 'invoice' ? success.invoiceNumber : success.gatepassNumber;
+        const fileName = `${mode === 'invoice' ? 'Invoice' : 'Gatepass'}_${num}_${date}_${success.customerName}`;
+
+        document.title = fileName;
         setPrintMode(mode);
+
         setTimeout(() => {
             window.print();
+            // Restore title after print dialog closes
+            setTimeout(() => {
+                document.title = originalTitle;
+            }, 1000);
         }, 100);
     };
 
@@ -209,7 +220,7 @@ const Sales = () => {
                         <div className="space-y-3">
                             <div className="flex justify-between items-end border-b border-dashed border-slate-200 pb-1">
                                 <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest">{isGatePass ? 'D.N. NO :' : 'INV NO :'}</p>
-                                <p className="text-xs font-black text-slate-900 tracking-widest">#{success._id.slice(-8).toUpperCase()}</p>
+                                <p className="text-xs font-black text-slate-900 tracking-widest">{isGatePass ? success.gatepassNumber : success.invoiceNumber}</p>
                             </div>
                             <div className="flex justify-between items-end border-b border-dashed border-slate-200 pb-1">
                                 <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest">{isGatePass ? 'D.N. DATE :' : 'DATE :'}</p>
@@ -269,7 +280,7 @@ const Sales = () => {
                                 <tr className="border-t-2 border-slate-900">
                                     <td colSpan="4" className="py-4 text-left font-black text-slate-900 text-[10px] uppercase tracking-widest px-2">Total Good Qty Loaded</td>
                                     <td className="py-4 text-center font-black text-slate-900 text-sm italic">{success.items.reduce((acc, item) => acc + item.quantity, 0)}</td>
-                                    <td className="py-4 px-2 font-black text-slate-900 text-[10px] uppercase tracking-tighter">No: {success._id.slice(-4).toUpperCase()}</td>
+                                    <td className="py-4 px-2 font-black text-slate-900 text-[10px] uppercase tracking-tighter">No: {success.gatepassNumber}</td>
                                 </tr>
                             ) : (
                                 <>
