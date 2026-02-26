@@ -6,6 +6,9 @@ const {
     getUserProfile,
     forgotPassword,
     resetPassword,
+    getUsers,
+    updateUser,
+    deleteUser,
 } = require('../controllers/userController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
