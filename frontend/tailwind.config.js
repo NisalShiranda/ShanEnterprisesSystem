@@ -6,6 +6,11 @@ export default {
     ],
     theme: {
         extend: {
+            fontFamily: {
+                sans: ['Outfit', 'Plus Jakarta Sans', 'sans-serif'],
+                outfit: ['Outfit', 'sans-serif'],
+                jakarta: ['Plus Jakarta Sans', 'sans-serif'],
+            },
             colors: {
                 primary: '#000000',
                 secondary: '#1e293b',

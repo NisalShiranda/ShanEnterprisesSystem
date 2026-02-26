@@ -1,13 +1,15 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 
 :root {
-  --primary: #3b82f6;
+  --primary: #000000;
   --secondary: #1e293b;
-  --accent: #fbbf24;
+  --accent: #d4af37;
 }
 
 body {
   @apply bg-slate-50 text-slate-900;
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
 }
 
 button,
