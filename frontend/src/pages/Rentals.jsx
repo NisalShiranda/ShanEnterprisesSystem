@@ -126,21 +126,39 @@ const Rentals = () => {
             {/* Printable Invoice Component (Hidden on Screen) */}
             {printData && (
                 <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8">
-                    {/* Header */}
-                    <div className="flex items-center justify-between border-b-4 border-slate-900 pb-6 mb-8">
+                    {/* Modern Professional Header matching Template */}
+                    <div className="flex items-start justify-between mb-10 border-b-2 border-slate-100 pb-8">
                         <div className="flex items-center gap-4">
-                            <div className="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center overflow-hidden border-2 border-slate-200">
-                                <img src="/logo.jpeg" alt="SE" className="w-full h-full object-cover invert" />
+                            {/* Logo Wrapper */}
+                            <div className="flex-shrink-0">
+                                <div className="w-20 h-20 rounded-full bg-white border border-slate-200 p-1 flex items-center justify-center shadow-sm">
+                                    <img src="/logo.jpeg" alt="Shan Enterprises" className="w-full h-full object-contain rounded-full" />
+                                </div>
                             </div>
-                            <div>
-                                <h1 className="text-2xl font-black text-slate-900 tracking-tighter leading-none mb-1">SHAN ENTERPRISES</h1>
-                                <p className="text-[8px] font-bold text-slate-600 uppercase tracking-tight">Kimbulapitiya, Tel: 0777-914930 / 076-7015159</p>
-                                <p className="text-[8px] font-bold text-slate-600 uppercase">E-Mail: shanenterprises71@gmail.com</p>
+
+                            {/* Company Branding */}
+                            <div className="flex flex-col py-0.5">
+                                <h1 className="text-2xl font-black text-[#0f172a] leading-[1.0] tracking-tighter">
+                                    SHAN <br />
+                                    ENTERPRISES
+                                </h1>
+                                <div className="mt-3 space-y-0.5">
+                                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">No.170-C/10/B, Galmankadawatta, Kimbulapitiya.</p>
+                                    <p className="text-[9px] font-bold text-slate-500">Tel: 0777-914930 / 076-7015159</p>
+                                    <p className="text-[9px] font-bold text-slate-500 uppercase">E-Mail: shanenterprises71@gmail.com</p>
+                                </div>
                             </div>
                         </div>
-                        <div className="text-right">
-                            <div className="bg-slate-900 text-white px-4 py-2 rounded-lg font-black text-xs uppercase tracking-widest mb-1">RENTAL BILL</div>
-                            <p className="text-[8px] font-black text-slate-900 uppercase">Reg. No: W.4086</p>
+
+                        {/* Title & Reg Info */}
+                        <div className="flex flex-col items-end gap-2 pt-0.5 flex-shrink-0">
+                            <div className="bg-[#0f172a] text-white px-6 py-4 rounded-xl flex flex-col items-center justify-center min-w-[140px] shadow-lg">
+                                <span className="text-[11px] font-black tracking-[0.2em] uppercase leading-none">RENTAL</span>
+                                <span className="text-[11px] font-black tracking-[0.2em] uppercase mt-1.5 leading-none">BILL</span>
+                            </div>
+                            <div className="bg-[#f8fafc] px-3 py-1.5 rounded-lg border border-slate-100 shadow-sm">
+                                <p className="text-[10px] font-black text-[#0f172a] tracking-widest uppercase">REG. NO: W.4086</p>
+                            </div>
                         </div>
                     </div>
 

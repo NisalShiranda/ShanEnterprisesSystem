@@ -152,26 +152,43 @@ const Sales = () => {
 
             return (
                 <div className={`${isHiddenInPrint ? 'print:hidden' : ''} bg-white p-10 rounded-2xl shadow-xl border border-slate-100 print:shadow-none print:border-none print:p-8 relative`}>
-                    {/* Professional Header based on Physical Template */}
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8 border-b-4 border-slate-900 pb-6">
+                    {/* Modern Professional Header matching Template */}
+                    <div className="flex items-start justify-between mb-10 border-b-2 border-slate-100 pb-8 print:pb-6">
                         <div className="flex items-center gap-4">
-                            <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center text-white overflow-hidden border-4 border-slate-200 shadow-md">
-                                <img src="/logo.jpeg" alt="SE" className="w-full h-full object-cover invert" />
+                            {/* Logo Wrapper */}
+                            <div className="flex-shrink-0">
+                                <div className="w-24 h-24 rounded-full bg-white border border-slate-200 p-1 flex items-center justify-center shadow-sm">
+                                    <img src="/logo.jpeg" alt="Shan Enterprises" className="w-full h-full object-contain rounded-full" />
+                                </div>
                             </div>
-                            <div>
-                                <h1 className="text-3xl font-black text-slate-900 tracking-tighter leading-none mb-1">SHAN ENTERPRISES</h1>
-                                <div className="space-y-0.5">
-                                    <p className="text-[9px] font-bold text-slate-600 uppercase tracking-tight">No.170-C/10/B, Galmankadawatta, Kimbulapitiya.</p>
-                                    <p className="text-[9px] font-bold text-slate-600">Tel: 0777-914930 / 076-7015159</p>
-                                    <p className="text-[9px] font-bold text-slate-600 uppercase">E-Mail: shanenterprises71@gmail.com</p>
+
+                            {/* Company Branding */}
+                            <div className="flex flex-col py-0.5">
+                                <h1 className="text-3xl font-black text-[#0f172a] leading-[1.0] tracking-tighter">
+                                    SHAN <br />
+                                    ENTERPRISES
+                                </h1>
+                                <div className="mt-4 space-y-0.5">
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tight">No.170-C/10/B, Galmankadawatta, Kimbulapitiya.</p>
+                                    <p className="text-[10px] font-bold text-slate-500">Tel: 0777-914930 / 076-7015159</p>
+                                    <p className="text-[10px] font-bold text-slate-500 uppercase">E-Mail: shanenterprises71@gmail.com</p>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex flex-col items-end gap-2">
-                            <div className="bg-slate-900 text-white px-4 py-2 rounded-lg font-black text-sm uppercase tracking-widest shadow-lg">
-                                {isGatePass ? 'GATE PASS' : 'SALES INVOICE'}
+
+                        {/* Title & Reg Info */}
+                        <div className="flex flex-col items-end gap-3 pt-0.5 flex-shrink-0">
+                            <div className="bg-[#0f172a] text-white px-6 py-4 rounded-2xl flex flex-col items-center justify-center min-w-[160px] shadow-xl">
+                                <span className="text-xs font-black tracking-[0.2em] uppercase leading-none">
+                                    {isGatePass ? 'GATE' : 'SALES'}
+                                </span>
+                                <span className="text-xs font-black tracking-[0.2em] uppercase mt-2 leading-none">
+                                    {isGatePass ? 'PASS' : 'INVOICE'}
+                                </span>
                             </div>
-                            <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded">Reg. No: W.4086</p>
+                            <div className="bg-[#f8fafc] px-4 py-2 rounded-lg border border-slate-100 shadow-sm">
+                                <p className="text-[11px] font-black text-[#0f172a] tracking-widest uppercase">REG. NO: W.4086</p>
+                            </div>
                         </div>
                     </div>
 
