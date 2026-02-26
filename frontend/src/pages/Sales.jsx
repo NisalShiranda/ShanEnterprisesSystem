@@ -204,30 +204,55 @@ const Sales = () => {
                     </div>
 
                     {/* Metadata Section */}
-                    <div className="grid grid-cols-2 gap-x-12 gap-y-4 mb-8 px-2">
-                        <div className="space-y-3">
-                            <div>
-                                <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest mb-1 border-b border-slate-100 w-fit">Delivery To / Customer</p>
-                                <p className="text-lg font-black text-slate-900 tracking-tight leading-none">{success.customerName}</p>
-                            </div>
-                            {isGatePass && (
+                    {isGatePass ? (
+                        <div className="grid grid-cols-2 gap-x-12 mb-8 px-2">
+                            <div className="space-y-4">
                                 <div>
-                                    <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest mb-1 border-b border-slate-100 w-fit">Attention</p>
+                                    <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest mb-1 border-b border-slate-100 w-fit">Delivery To</p>
                                     <p className="text-xs font-bold text-slate-400 italic">......................................................................</p>
                                 </div>
-                            )}
-                        </div>
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-end border-b border-dashed border-slate-200 pb-1">
-                                <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest">{isGatePass ? 'D.N. NO :' : 'INV NO :'}</p>
-                                <p className="text-xs font-black text-slate-900 tracking-widest">{isGatePass ? success.gatepassNumber : success.invoiceNumber}</p>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest mb-1 border-b border-slate-100 w-fit">Attention</p>
+                                        <p className="text-xs font-bold text-slate-400 italic">................................</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest mb-1 border-b border-slate-100 w-fit">Vehicle No</p>
+                                        <p className="text-xs font-bold text-slate-400 italic">................................</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex justify-between items-end border-b border-dashed border-slate-200 pb-1">
-                                <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest">{isGatePass ? 'D.N. DATE :' : 'DATE :'}</p>
-                                <p className="text-xs font-black text-slate-900 tracking-widest">{new Date(success.createdAt).toLocaleDateString('en-GB')}</p>
+                            <div className="space-y-3 flex flex-col justify-end">
+                                <div className="flex justify-between items-end border-b border-dashed border-slate-200 pb-1">
+                                    <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest">D.N. NO :</p>
+                                    <p className="text-xs font-black text-slate-900 tracking-widest">{success.gatepassNumber}</p>
+                                </div>
+                                <div className="flex justify-between items-end border-b border-dashed border-slate-200 pb-1">
+                                    <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest">D.N. DATE :</p>
+                                    <p className="text-xs font-black text-slate-900 tracking-widest">{new Date(success.createdAt).toLocaleDateString('en-GB')}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="grid grid-cols-2 gap-x-12 gap-y-4 mb-8 px-2">
+                            <div className="space-y-3">
+                                <div>
+                                    <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest mb-1 border-b border-slate-100 w-fit">Delivery To / Customer</p>
+                                    <p className="text-lg font-black text-slate-900 tracking-tight leading-none">{success.customerName}</p>
+                                </div>
+                            </div>
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-end border-b border-dashed border-slate-200 pb-1">
+                                    <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest">INV NO :</p>
+                                    <p className="text-xs font-black text-slate-900 tracking-widest">{success.invoiceNumber}</p>
+                                </div>
+                                <div className="flex justify-between items-end border-b border-dashed border-slate-200 pb-1">
+                                    <p className="text-[9px] text-slate-400 uppercase font-black tracking-widest">DATE :</p>
+                                    <p className="text-xs font-black text-slate-900 tracking-widest">{new Date(success.createdAt).toLocaleDateString('en-GB')}</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Table Section */}
                     <table className="w-full mb-10 border-collapse">
@@ -235,12 +260,9 @@ const Sales = () => {
                             <tr className="bg-slate-50 border-y-2 border-slate-900">
                                 {isGatePass ? (
                                     <>
-                                        <th className="py-3 px-2 text-left text-[9px] font-black text-slate-900 uppercase tracking-widest border-r border-slate-200">Style No</th>
-                                        <th className="py-3 px-2 text-left text-[9px] font-black text-slate-900 uppercase tracking-widest border-r border-slate-200">Colour</th>
+                                        <th className="py-3 px-4 text-left text-[9px] font-black text-slate-900 uppercase tracking-widest border-r border-slate-200">Machine / Part Name</th>
                                         <th className="py-3 px-4 text-left text-[9px] font-black text-slate-900 uppercase tracking-widest border-r border-slate-200">Description</th>
-                                        <th className="py-3 px-2 text-center text-[9px] font-black text-slate-900 uppercase tracking-widest border-r border-slate-200">Size</th>
-                                        <th className="py-3 px-2 text-center text-[9px] font-black text-slate-900 uppercase tracking-widest border-r border-slate-200">Good Qty</th>
-                                        <th className="py-3 px-2 text-left text-[9px] font-black text-slate-900 uppercase tracking-widest">Remarks</th>
+                                        <th className="py-3 px-4 text-center text-[9px] font-black text-slate-900 uppercase tracking-widest">Qty</th>
                                     </>
                                 ) : (
                                     <>
@@ -257,12 +279,9 @@ const Sales = () => {
                                 <tr key={idx} className="border-b border-slate-100">
                                     {isGatePass ? (
                                         <>
-                                            <td className="py-4 px-2 text-xs font-bold text-slate-300 border-r border-slate-100 italic">--</td>
-                                            <td className="py-4 px-2 text-xs font-bold text-slate-300 border-r border-slate-100 italic">--</td>
                                             <td className="py-4 px-4 text-sm font-black text-slate-800 tracking-tight uppercase border-r border-slate-100">{item.name}</td>
-                                            <td className="py-4 px-2 text-xs font-bold text-slate-300 border-r border-slate-100 italic text-center text-center">--</td>
-                                            <td className="py-4 px-2 text-sm font-black text-slate-900 text-center border-r border-slate-100">{item.quantity}</td>
-                                            <td className="py-4 px-2 text-xs font-bold text-slate-300 italic">..........</td>
+                                            <td className="py-4 px-4 text-xs font-bold text-slate-300 border-r border-slate-100 italic">................................................</td>
+                                            <td className="py-4 px-4 text-sm font-black text-slate-900 text-center">{item.quantity}</td>
                                         </>
                                     ) : (
                                         <>
@@ -277,10 +296,10 @@ const Sales = () => {
                         </tbody>
                         <tfoot>
                             {isGatePass ? (
-                                <tr className="border-t-2 border-slate-900">
-                                    <td colSpan="4" className="py-4 text-left font-black text-slate-900 text-[10px] uppercase tracking-widest px-2">Total Good Qty Loaded</td>
-                                    <td className="py-4 text-center font-black text-slate-900 text-sm italic">{success.items.reduce((acc, item) => acc + item.quantity, 0)}</td>
-                                    <td className="py-4 px-2 font-black text-slate-900 text-[10px] uppercase tracking-tighter">No: {success.gatepassNumber}</td>
+                                <tr className="border-t-2 border-slate-900 font-black text-[#0f172a]">
+                                    <td className="py-4 text-left text-[10px] uppercase tracking-widest px-4">No: {success.gatepassNumber}</td>
+                                    <td className="py-4 text-right text-[10px] uppercase tracking-widest px-4">Total Qty</td>
+                                    <td className="py-4 text-center text-sm italic">{success.items.reduce((acc, item) => acc + item.quantity, 0)}</td>
                                 </tr>
                             ) : (
                                 <>
