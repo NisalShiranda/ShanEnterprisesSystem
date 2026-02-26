@@ -106,7 +106,7 @@ const LoginPage = () => {
                         <div className="space-y-2">
                             <div className="flex justify-between items-center ml-1">
                                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Security Pin</label>
-                                <button type="button" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Forgot?</button>
+                                <Link to="/forgot-password" title="Recover Access" className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Forgot?</Link>
                             </div>
                             <div className="relative group">
                                 <input

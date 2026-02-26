@@ -9,12 +9,13 @@ import {
     LogOut,
     ChevronRight,
     History,
-    Users
+    Users,
+    Shield
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar = () => {
-    const { logout } = useAuth();
+    const { logout, user } = useAuth();
 
     const navItems = [
         { name: 'Overview', path: '/dashboard', icon: LayoutDashboard },
@@ -24,6 +25,11 @@ const Sidebar = () => {
         { name: 'Inventory', path: '/machines', icon: HardHat },
         { name: 'Customers', path: '/customers', icon: Users },
     ];
+
+    // Add admin-only items
+    if (user?.isAdmin) {
+        navItems.push({ name: 'Personnel', path: '/users', icon: Shield });
+    }
 
     return (
         <aside className="w-64 h-screen bg-white border-r border-slate-100 flex flex-col fixed left-0 top-0 z-20 print:hidden">

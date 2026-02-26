@@ -10,6 +10,9 @@ import Sales from './pages/Sales';
 import SalesHistory from './pages/SalesHistory';
 import Rentals from './pages/Rentals';
 import Customers from './pages/Customers';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
+import Users from './pages/Users';
 import Layout from './components/Layout';
 
 const ProtectedRoute = ({ children }) => {
@@ -27,6 +30,8 @@ function App() {
           <Route path="/" element={<LoginPage />} />
           <Route path="/login" element={<Navigate to="/" />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           <Route path="/dashboard" element={
             <ProtectedRoute>
@@ -61,6 +66,12 @@ function App() {
           <Route path="/customers" element={
             <ProtectedRoute>
               <Customers />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/users" element={
+            <ProtectedRoute>
+              <Users />
             </ProtectedRoute>
           } />
         </Routes>
