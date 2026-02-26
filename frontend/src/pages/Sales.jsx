@@ -151,7 +151,7 @@ const Sales = () => {
             const isHiddenInPrint = printMode !== type;
 
             return (
-                <div className={`${isHiddenInPrint ? 'print:hidden' : ''} bg-white p-10 rounded-2xl shadow-xl border border-slate-100 print:shadow-none print:border-none print:p-8 relative`}>
+                <div className={`${isHiddenInPrint ? 'print:hidden' : ''} bg-white p-10 rounded-2xl shadow-xl border border-slate-100 print:shadow-none print:border-none print:p-20 relative`}>
                     {/* Modern Professional Header matching Template */}
                     <div className="flex items-start justify-between mb-10 border-b-2 border-slate-100 pb-8 print:pb-6">
                         <div className="flex items-center gap-4">

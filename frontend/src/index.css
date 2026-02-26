@@ -20,6 +20,6 @@ select {
 
 @media print {
   @page {
-    margin: 0;
+    margin: 10mm;
   }
 }

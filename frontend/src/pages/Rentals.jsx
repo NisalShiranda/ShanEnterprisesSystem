@@ -125,7 +125,7 @@ const Rentals = () => {
         <div className="space-y-6">
             {/* Printable Invoice Component (Hidden on Screen) */}
             {printData && (
-                <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8">
+                <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-16">
                     {/* Modern Professional Header matching Template */}
                     <div className="flex items-start justify-between mb-10 border-b-2 border-slate-100 pb-8">
                         <div className="flex items-center gap-4">
