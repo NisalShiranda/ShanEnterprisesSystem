@@ -273,7 +273,7 @@ const Machines = () => {
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Buying Price</label>
                                     <input
-                                        type="number" required
+                                        type="number"
                                         className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition text-sm"
                                         value={formData.buyingPrice}
                                         onChange={(e) => setFormData({ ...formData, buyingPrice: e.target.value })}

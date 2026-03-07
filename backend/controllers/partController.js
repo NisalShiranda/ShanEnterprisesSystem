@@ -50,16 +50,16 @@ const createPart = async (req, res) => {
 // @route   PUT /api/parts/:id
 // @access  Private/Admin
 const updatePart = async (req, res) => {
-    const { name, price, description, category, stock } = req.body;
+    const { name, price, buyingPrice, description, category, stock } = req.body;
 
     const part = await Part.findById(req.params.id);
 
     if (part) {
         part.name = name || part.name;
-        part.price = price !== undefined ? price : part.price;
-        part.buyingPrice = buyingPrice !== undefined ? buyingPrice : part.buyingPrice;
-        part.description = description || part.description;
-        part.stock = stock || part.stock;
+        part.price = (price !== undefined && price !== '') ? Number(price) : part.price;
+        part.buyingPrice = (buyingPrice !== undefined && buyingPrice !== '') ? Number(buyingPrice) : part.buyingPrice;
+        part.description = description !== undefined ? description : part.description;
+        part.stock = (stock !== undefined && stock !== '') ? Number(stock) : part.stock;
 
         const updatedPart = await part.save();
         res.json(updatedPart);

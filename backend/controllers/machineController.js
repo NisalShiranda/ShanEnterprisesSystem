@@ -44,17 +44,17 @@ const createMachine = async (req, res) => {
 // @route   PUT /api/machines/:id
 // @access  Private/Admin
 const updateMachine = async (req, res) => {
-    const { name, price, description, category, rentalPricePerMonth, stock } = req.body;
+    const { name, price, buyingPrice, description, category, rentalPricePerMonth, stock } = req.body;
 
     const machine = await Machine.findById(req.params.id);
 
     if (machine) {
         machine.name = name || machine.name;
-        machine.price = price !== undefined ? price : machine.price;
-        machine.buyingPrice = buyingPrice !== undefined ? buyingPrice : machine.buyingPrice;
-        machine.description = description || machine.description;
-        machine.rentalPricePerMonth = rentalPricePerMonth || machine.rentalPricePerMonth;
-        machine.stock = stock || machine.stock;
+        machine.price = (price !== undefined && price !== '') ? Number(price) : machine.price;
+        machine.buyingPrice = (buyingPrice !== undefined && buyingPrice !== '') ? Number(buyingPrice) : machine.buyingPrice;
+        machine.description = description !== undefined ? description : machine.description;
+        machine.rentalPricePerMonth = (rentalPricePerMonth !== undefined && rentalPricePerMonth !== '') ? Number(rentalPricePerMonth) : machine.rentalPricePerMonth;
+        machine.stock = (stock !== undefined && stock !== '') ? Number(stock) : machine.stock;
 
         const updatedMachine = await machine.save();
         res.json(updatedMachine);
