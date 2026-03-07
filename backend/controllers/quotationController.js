@@ -1,5 +1,7 @@
 const Quotation = require('../models/Quotation');
 const Counter = require('../models/Counter');
+const Part = require('../models/Part');
+const Machine = require('../models/Machine');
 
 // @desc    Create new quotation
 // @route   POST /api/quotations
@@ -16,9 +18,9 @@ const createQuotation = async (req, res) => {
             items.map(async (item) => {
                 let inventoryItem;
                 if (item.part) {
-                    inventoryItem = await require('../models/Part').findById(item.part);
+                    inventoryItem = await Part.findById(item.part);
                 } else if (item.machine) {
-                    inventoryItem = await require('../models/Machine').findById(item.machine);
+                    inventoryItem = await Machine.findById(item.machine);
                 }
 
                 return {
