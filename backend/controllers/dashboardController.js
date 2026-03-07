@@ -29,15 +29,20 @@ const getDashboardStats = async (req, res) => {
             });
         });
 
-        res.json({
-            totalSales,
-            totalProfit,
-            totalDue,
+        const responseData = {
             activeRentals,
             machinesCount,
             partsCount,
-            totalRentalIncome,
-        });
+        };
+
+        if (req.user && req.user.isAdmin) {
+            responseData.totalSales = totalSales;
+            responseData.totalProfit = totalProfit;
+            responseData.totalDue = totalDue;
+            responseData.totalRentalIncome = totalRentalIncome;
+        }
+
+        res.json(responseData);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

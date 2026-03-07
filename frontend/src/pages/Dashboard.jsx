@@ -10,6 +10,7 @@ import {
     Clock,
     LayoutDashboard
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const SimpleStatCard = ({ title, value, icon: Icon, colorClass }) => (
     <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm transition-all duration-300">
@@ -26,6 +27,7 @@ const SimpleStatCard = ({ title, value, icon: Icon, colorClass }) => (
 );
 
 const Dashboard = () => {
+    const { user } = useAuth();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -76,24 +78,28 @@ const Dashboard = () => {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <SimpleStatCard
-                    title="Revenue"
-                    value={`LKR ${stats?.totalSales?.toLocaleString()}`}
-                    icon={DollarSign}
-                    colorClass="bg-indigo-500"
-                />
-                <SimpleStatCard
-                    title="Profit"
-                    value={`LKR ${stats?.totalProfit?.toLocaleString()}`}
-                    icon={TrendingUp}
-                    colorClass="bg-emerald-500"
-                />
-                <SimpleStatCard
-                    title="Dues"
-                    value={`LKR ${stats?.totalDue?.toLocaleString()}`}
-                    icon={AlertCircle}
-                    colorClass="bg-rose-500"
-                />
+                {user?.isAdmin && (
+                    <>
+                        <SimpleStatCard
+                            title="Revenue"
+                            value={`LKR ${stats?.totalSales?.toLocaleString()}`}
+                            icon={DollarSign}
+                            colorClass="bg-indigo-500"
+                        />
+                        <SimpleStatCard
+                            title="Profit"
+                            value={`LKR ${stats?.totalProfit?.toLocaleString()}`}
+                            icon={TrendingUp}
+                            colorClass="bg-emerald-500"
+                        />
+                        <SimpleStatCard
+                            title="Dues"
+                            value={`LKR ${stats?.totalDue?.toLocaleString()}`}
+                            icon={AlertCircle}
+                            colorClass="bg-rose-500"
+                        />
+                    </>
+                )}
                 <SimpleStatCard
                     title="Rentals"
                     value={stats?.activeRentals}
@@ -137,40 +143,42 @@ const Dashboard = () => {
                 </div>
 
                 {/* Rental Income Widget */}
-                <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                    <h3 className="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <Calendar size={16} className="text-amber-500" />
-                        Monthly Projections
-                    </h3>
+                {user?.isAdmin && (
+                    <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                        <h3 className="text-sm font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            <Calendar size={16} className="text-amber-500" />
+                            Monthly Projections
+                        </h3>
 
-                    <div className="space-y-4">
-                        <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Estimated Income</p>
-                            <h2 className="text-2xl font-black text-slate-900">
-                                LKR {stats?.totalRentalIncome?.toLocaleString()}
-                            </h2>
-                        </div>
-
-                        <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-amber-400 rounded-full w-[65%]" />
-                        </div>
-
-                        <div className="space-y-2 pt-2">
-                            <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                                <div className="w-1.5 h-1.5 bg-amber-400 rounded-full" />
-                                <span>Base renewals: {stats?.activeRentals}</span>
+                        <div className="space-y-4">
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Estimated Income</p>
+                                <h2 className="text-2xl font-black text-slate-900">
+                                    LKR {stats?.totalRentalIncome?.toLocaleString()}
+                                </h2>
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-                                <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full" />
-                                <span>Growth target: 12.5%</span>
-                            </div>
-                        </div>
 
-                        <button className="w-full mt-2 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-primary transition-all shadow-sm">
-                            Manage Renewals
-                        </button>
+                            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-amber-400 rounded-full w-[65%]" />
+                            </div>
+
+                            <div className="space-y-2 pt-2">
+                                <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                                    <div className="w-1.5 h-1.5 bg-amber-400 rounded-full" />
+                                    <span>Base renewals: {stats?.activeRentals}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                                    <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full" />
+                                    <span>Growth target: 12.5%</span>
+                                </div>
+                            </div>
+
+                            <button className="w-full mt-2 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-primary transition-all shadow-sm">
+                                Manage Renewals
+                            </button>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );
