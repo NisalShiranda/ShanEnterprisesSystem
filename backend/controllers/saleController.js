@@ -43,6 +43,7 @@ const createSale = async (req, res) => {
                     name: inventoryItem.name,
                     quantity: item.quantity,
                     price: inventoryItem.price,
+                    buyingPrice: inventoryItem.buyingPrice || 0,
                 };
             })
         );
@@ -71,11 +72,13 @@ const createSale = async (req, res) => {
         console.log('Generated Numbers:', { invoiceNumber, gatepassNumber });
         console.log('Final Totals:', { finalTotal, finalPaid, finalDue, status });
 
+        const finalProfit = processedItems.reduce((acc, item) => acc + ((item.price - item.buyingPrice) * item.quantity), 0);
+
         const sale = new Sale({
             customerName,
             items: processedItems,
             totalAmount: finalTotal,
-            profit: finalTotal * 0.2,
+            profit: finalProfit,
             dueAmount: finalDue < 0 ? 0 : finalDue,
             paidAmount: finalPaid,
             paymentStatus: status,

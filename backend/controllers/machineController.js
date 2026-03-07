@@ -25,11 +25,12 @@ const getMachineById = async (req, res) => {
 // @route   POST /api/machines
 // @access  Private/Admin
 const createMachine = async (req, res) => {
-    const { name, price, description, category, rentalPricePerMonth, stock } = req.body;
+    const { name, price, buyingPrice, description, category, rentalPricePerMonth, stock } = req.body;
 
     const machine = new Machine({
         name,
         price,
+        buyingPrice,
         description,
         rentalPricePerMonth,
         stock,
@@ -49,7 +50,8 @@ const updateMachine = async (req, res) => {
 
     if (machine) {
         machine.name = name || machine.name;
-        machine.price = price || machine.price;
+        machine.price = price !== undefined ? price : machine.price;
+        machine.buyingPrice = buyingPrice !== undefined ? buyingPrice : machine.buyingPrice;
         machine.description = description || machine.description;
         machine.rentalPricePerMonth = rentalPricePerMonth || machine.rentalPricePerMonth;
         machine.stock = stock || machine.stock;

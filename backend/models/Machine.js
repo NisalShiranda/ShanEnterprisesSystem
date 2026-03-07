@@ -14,6 +14,11 @@ const machineSchema = mongoose.Schema(
             required: true,
             default: 0,
         },
+        buyingPrice: {
+            type: Number,
+            required: true,
+            default: 0,
+        },
         rentalPricePerMonth: {
             type: Number,
             required: true,

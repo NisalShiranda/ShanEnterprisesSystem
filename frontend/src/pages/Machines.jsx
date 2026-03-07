@@ -16,6 +16,7 @@ const Machines = () => {
     const [formData, setFormData] = useState({
         name: '',
         price: '',
+        buyingPrice: '',
         rentalPricePerMonth: '',
         stock: '',
         description: ''
@@ -49,6 +50,7 @@ const Machines = () => {
         setFormData({
             name: item.name,
             price: item.price,
+            buyingPrice: item.buyingPrice || '',
             rentalPricePerMonth: item.rentalPricePerMonth || '',
             stock: item.stock,
             description: item.description || ''
@@ -76,7 +78,7 @@ const Machines = () => {
     };
 
     const resetForm = () => {
-        setFormData({ name: '', price: '', rentalPricePerMonth: '', stock: '', description: '' });
+        setFormData({ name: '', price: '', buyingPrice: '', rentalPricePerMonth: '', stock: '', description: '' });
         setIsEditing(false);
         setEditingId(null);
     };
@@ -266,6 +268,15 @@ const Machines = () => {
                                         className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition text-sm"
                                         value={formData.stock}
                                         onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Buying Price</label>
+                                    <input
+                                        type="number" required
+                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition text-sm"
+                                        value={formData.buyingPrice}
+                                        onChange={(e) => setFormData({ ...formData, buyingPrice: e.target.value })}
                                     />
                                 </div>
                                 <div>

@@ -32,11 +32,12 @@ const getPartById = async (req, res) => {
 // @route   POST /api/parts
 // @access  Private/Admin
 const createPart = async (req, res) => {
-    const { name, price, description, category, stock } = req.body;
+    const { name, price, buyingPrice, description, category, stock } = req.body;
 
     const part = new Part({
         name,
         price,
+        buyingPrice,
         description,
         stock,
     });
@@ -55,7 +56,8 @@ const updatePart = async (req, res) => {
 
     if (part) {
         part.name = name || part.name;
-        part.price = price || part.price;
+        part.price = price !== undefined ? price : part.price;
+        part.buyingPrice = buyingPrice !== undefined ? buyingPrice : part.buyingPrice;
         part.description = description || part.description;
         part.stock = stock || part.stock;
 
