@@ -41,6 +41,7 @@ const createSale = async (req, res) => {
                     part: itemType === 'part' ? item.part : undefined,
                     machine: itemType === 'machine' ? item.machine : undefined,
                     name: inventoryItem.name,
+                    description: inventoryItem.description,
                     quantity: item.quantity,
                     price: inventoryItem.price,
                     buyingPrice: inventoryItem.buyingPrice || 0,

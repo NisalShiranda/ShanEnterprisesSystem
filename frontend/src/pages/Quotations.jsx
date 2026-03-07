@@ -37,7 +37,7 @@ const Quotations = () => {
     const [activeInventoryTab, setActiveInventoryTab] = useState('machines');
     const [customers, setCustomers] = useState([]);
     const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
-    const [customItem, setCustomItem] = useState({ name: '', price: '', quantity: 1 });
+    const [customItem, setCustomItem] = useState({ name: '', description: '', price: '', quantity: 1 });
     const [printMode, setPrintMode] = useState(false);
 
     useEffect(() => {
@@ -82,6 +82,7 @@ const Quotations = () => {
             setCart([...cart, {
                 id: item._id,
                 name: item.name,
+                description: item.description || '',
                 price: item.price,
                 quantity: 1,
                 type: type
@@ -94,11 +95,12 @@ const Quotations = () => {
         setCart([...cart, {
             id: 'custom-' + Date.now(),
             name: customItem.name,
+            description: customItem.description,
             price: Number(customItem.price),
             quantity: Number(customItem.quantity),
             type: 'custom'
         }]);
-        setCustomItem({ name: '', price: '', quantity: 1 });
+        setCustomItem({ name: '', description: '', price: '', quantity: 1 });
     };
 
     const updateQty = (id, delta) => {
@@ -129,6 +131,7 @@ const Quotations = () => {
                     part: i.type === 'part' ? i.id : null,
                     machine: i.type === 'machine' ? i.id : null,
                     name: i.name,
+                    description: i.description,
                     price: i.price,
                     quantity: i.quantity
                 }))
@@ -247,7 +250,8 @@ const Quotations = () => {
                     <table className="w-full mb-10">
                         <thead>
                             <tr className="bg-slate-50 border-y-2 border-slate-900">
-                                <th className="py-3 px-2 text-left text-[9px] font-black text-slate-900 uppercase tracking-widest">Description</th>
+                                <th className="py-3 px-2 text-left text-[9px] font-black text-slate-900 uppercase tracking-widest border-r border-slate-200">Item Name</th>
+                                <th className="py-3 px-2 text-left text-[9px] font-black text-slate-900 uppercase tracking-widest border-r border-slate-200">Description</th>
                                 <th className="py-3 px-2 text-center text-[9px] font-black text-slate-900 uppercase tracking-widest">Qty</th>
                                 <th className="py-3 px-2 text-right text-[9px] font-black text-slate-900 uppercase tracking-widest">Rate (LKR)</th>
                                 <th className="py-3 px-2 text-right text-[9px] font-black text-slate-900 uppercase tracking-widest">Subtotal</th>
@@ -255,8 +259,9 @@ const Quotations = () => {
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {successQuotation.items.map((item, idx) => (
-                                <tr key={idx}>
-                                    <td className="py-4 px-2 text-sm font-black text-slate-800 uppercase tracking-tight">{item.name}</td>
+                                <tr key={idx} className="border-b border-slate-100">
+                                    <td className="py-4 px-2 text-sm font-black text-slate-800 uppercase tracking-tight border-r border-slate-100">{item.name}</td>
+                                    <td className="py-4 px-2 text-xs font-bold text-slate-500 italic border-r border-slate-100">{item.description || 'N/A'}</td>
                                     <td className="py-4 px-2 text-center text-sm font-black text-slate-900">{item.quantity}</td>
                                     <td className="py-4 px-2 text-right text-sm font-medium text-slate-600">{item.price.toLocaleString()}</td>
                                     <td className="py-4 px-2 text-right text-sm font-black text-slate-900">{(item.price * item.quantity).toLocaleString()}</td>
@@ -321,10 +326,16 @@ const Quotations = () => {
                                 value={customItem.price}
                                 onChange={e => setCustomItem({ ...customItem, price: e.target.value })}
                             />
+                            <input
+                                type="text" placeholder="Description (Optional)"
+                                className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-300 text-sm font-bold transition-all"
+                                value={customItem.description}
+                                onChange={e => setCustomItem({ ...customItem, description: e.target.value })}
+                            />
                             <div className="flex gap-2">
                                 <input
                                     type="number" placeholder="Qty"
-                                    className="w-20 px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:bg-white focus:border-indigo-300 text-sm font-bold transition-all"
+                                    className="w-20 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:bg-white focus:border-indigo-300 text-sm font-bold transition-all"
                                     value={customItem.quantity}
                                     onChange={e => setCustomItem({ ...customItem, quantity: e.target.value })}
                                 />

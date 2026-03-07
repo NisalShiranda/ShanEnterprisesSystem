@@ -280,7 +280,7 @@ const Sales = () => {
                                     {isGatePass ? (
                                         <>
                                             <td className="py-4 px-4 text-sm font-black text-slate-800 tracking-tight uppercase border-r border-slate-100">{item.name}</td>
-                                            <td className="py-4 px-4 text-xs font-bold text-slate-300 border-r border-slate-100 italic">................................................</td>
+                                            <td className="py-4 px-4 text-xs font-bold text-slate-500 border-r border-slate-100 italic">{item.description || 'N/A'}</td>
                                             <td className="py-4 px-4 text-sm font-black text-slate-900 text-center">{item.quantity}</td>
                                         </>
                                     ) : (

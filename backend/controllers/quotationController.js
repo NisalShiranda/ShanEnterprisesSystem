@@ -12,7 +12,27 @@ const createQuotation = async (req, res) => {
     }
 
     try {
-        const totalAmount = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+        const processedItems = await Promise.all(
+            items.map(async (item) => {
+                let inventoryItem;
+                if (item.part) {
+                    inventoryItem = await require('../models/Part').findById(item.part);
+                } else if (item.machine) {
+                    inventoryItem = await require('../models/Machine').findById(item.machine);
+                }
+
+                return {
+                    part: item.part || undefined,
+                    machine: item.machine || undefined,
+                    name: item.name,
+                    description: inventoryItem ? inventoryItem.description : item.description,
+                    quantity: Number(item.quantity),
+                    price: Number(item.price),
+                };
+            })
+        );
+
+        const totalAmount = processedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
         // Generate sequential quotation number
         const counter = await Counter.findByIdAndUpdate(
@@ -25,7 +45,7 @@ const createQuotation = async (req, res) => {
 
         const quotation = new Quotation({
             customerName,
-            items,
+            items: processedItems,
             totalAmount,
             quotationNumber,
         });
