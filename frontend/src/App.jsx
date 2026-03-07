@@ -13,6 +13,7 @@ import Customers from './pages/Customers';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Users from './pages/Users';
+import Quotations from './pages/Quotations';
 import Layout from './components/Layout';
 
 const ProtectedRoute = ({ children }) => {
@@ -66,6 +67,12 @@ function App() {
           <Route path="/customers" element={
             <ProtectedRoute>
               <Customers />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/quotations" element={
+            <ProtectedRoute>
+              <Quotations />
             </ProtectedRoute>
           } />
 

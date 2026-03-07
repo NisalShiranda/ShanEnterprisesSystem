@@ -10,7 +10,8 @@ import {
     ChevronRight,
     History,
     Users,
-    Shield
+    Shield,
+    FileText
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -22,6 +23,7 @@ const Sidebar = () => {
         { name: 'Sales Hub', path: '/sales', icon: ShoppingCart },
         { name: 'Sales History', path: '/sales-history', icon: History },
         { name: 'Rentals', path: '/rentals', icon: CalendarDays },
+        { name: 'Quotations', path: '/quotations', icon: FileText },
         { name: 'Inventory', path: '/machines', icon: HardHat },
         { name: 'Customers', path: '/customers', icon: Users },
     ];
