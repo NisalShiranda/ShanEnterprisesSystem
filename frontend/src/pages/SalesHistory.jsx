@@ -18,8 +18,10 @@ import {
     ChevronDown,
     ChevronUp
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const SalesHistory = () => {
+    const navigate = useNavigate();
     const [sales, setSales] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -207,7 +209,7 @@ const SalesHistory = () => {
                                             </td>
                                             <td className="px-6 py-5 text-right flex justify-end gap-2">
                                                 <button
-                                                    onClick={() => window.location.href = `/sales?id=${sale._id}`}
+                                                    onClick={() => navigate(`/sales?id=${sale._id}`)}
                                                     className="p-2 text-slate-400 hover:text-slate-900 bg-white border border-slate-100 rounded-xl hover:border-slate-300 hover:shadow-md transition-all active:scale-95"
                                                     title="View Details"
                                                 >

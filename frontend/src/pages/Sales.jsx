@@ -19,28 +19,32 @@ const Sales = () => {
     const [printMode, setPrintMode] = useState('invoice'); // 'invoice' or 'gatepass'
     const [customers, setCustomers] = useState([]);
     const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
+            setInitialLoading(true);
             try {
-                const [partsRes, machinesRes] = await Promise.all([
+                // 1. Fetch common inventory data (Parts, Machines, Customers)
+                // We use Promise.allSettled to ensure that even if one fails, others might succeed
+                const results = await Promise.allSettled([
                     api.get('/parts'),
-                    api.get('/machines')
+                    api.get('/machines'),
+                    api.get('/customers')
                 ]);
-                setParts(partsRes.data);
-                setMachines(machinesRes.data);
 
-                const customersRes = await api.get('/customers');
-                setCustomers(customersRes.data);
+                if (results[0].status === 'fulfilled') setParts(results[0].value.data);
+                if (results[1].status === 'fulfilled') setMachines(results[1].value.data);
+                if (results[2].status === 'fulfilled') setCustomers(results[2].value.data);
 
-                // Check if we are viewing a specific sale from history
+                // 2. Independently check if we are viewing a specific sale from history
                 const saleId = searchParams.get('id');
                 if (saleId) {
                     try {
                         const { data } = await api.get(`/sales/${saleId}`);
                         if (!data) {
                             alert('Transaction not found. It may have been deleted.');
-                            window.location.href = '/sales-history';
+                            navigate('/sales-history');
                             return;
                         }
                         setSuccess(data);
@@ -48,18 +52,20 @@ const Sales = () => {
                         console.error('Error fetching sale:', err);
                         if (err.response?.status === 404) {
                             alert('Transaction not found. It may have been deleted.');
-                            window.location.href = '/sales-history';
+                            navigate('/sales-history');
                         } else {
                             alert('Error loading transaction details.');
                         }
                     }
                 }
             } catch (err) {
-                console.error('Error fetching inventory:', err);
+                console.error('Core data fetch failed:', err);
+            } finally {
+                setInitialLoading(false);
             }
         };
         fetchData();
-    }, [searchParams]);
+    }, [searchParams, navigate]);
 
     const addToCart = (item, type) => {
         const existing = cart.find(i => i.id === item._id);
