@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { Users as UsersIcon, Shield, ShieldAlert, Trash2, CheckCircle2, XCircle, Search } from 'lucide-react';
+import Loader from '../components/Loader';
 
 const Users = () => {
     const [users, setUsers] = useState([]);
@@ -49,8 +50,8 @@ const Users = () => {
     );
 
     if (loading) return (
-        <div className="flex items-center justify-center min-h-[400px]">
-            <div className="w-8 h-8 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
+        <div className="p-6 lg:p-10 max-w-7xl mx-auto">
+            <Loader />
         </div>
     );
 

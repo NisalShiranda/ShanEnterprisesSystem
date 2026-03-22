@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { Mail, ArrowLeft } from 'lucide-react';
+import Loader from '../components/Loader';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -121,9 +122,7 @@ const ForgotPassword = () => {
                                 disabled={loading}
                                 className="w-full py-5 bg-black hover:bg-slate-800 text-white font-black text-xs uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-slate-200 transition-all active:scale-[0.98] disabled:opacity-50 h-16 flex items-center justify-center"
                             >
-                                {loading ? (
-                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                ) : 'Request Reset Token'}
+                                 {loading ? <Loader mode="inline" /> : 'Request Reset Token'}
                             </button>
                         </form>
                     )}

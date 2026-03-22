@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { ShoppingCart, Plus, Minus, Trash2, Printer, CheckCircle, Package, HardHat, Search, ArrowLeft } from 'lucide-react';
+import { Search, Plus, Filter, LayoutGrid, List, FileText, CheckCircle, Package, Receipt, Truck, QrCode } from 'lucide-react';
+import Loader from '../components/Loader';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 const Sales = () => {
@@ -161,6 +162,8 @@ const Sales = () => {
             }, 1000);
         }, 100);
     };
+
+    if (initialLoading) return <Loader />;
 
     if (success) {
         const renderDocument = (type) => {

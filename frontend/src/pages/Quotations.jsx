@@ -19,6 +19,7 @@ import {
     CirclePlus
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Loader from '../components/Loader';
 
 const Quotations = () => {
     const navigate = useNavigate();
@@ -524,7 +525,7 @@ const Quotations = () => {
                             {loading ? (
                                 <tr>
                                     <td colSpan="5" className="px-6 py-20 text-center">
-                                        <div className="w-8 h-8 border-3 border-slate-900 border-t-transparent rounded-full animate-spin mx-auto" />
+                                        <Loader className="min-h-[200px]" />
                                     </td>
                                 </tr>
                             ) : filteredQuotations.map((q) => (

@@ -19,6 +19,7 @@ import {
     ChevronUp
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import Loader from '../components/Loader';
 
 const SalesHistory = () => {
     const navigate = useNavigate();
@@ -101,11 +102,7 @@ const SalesHistory = () => {
         }
     };
 
-    if (loading) return (
-        <div className="flex items-center justify-center min-h-[50vh]">
-            <div className="w-8 h-8 border-3 border-slate-900 border-t-transparent rounded-full animate-spin" />
-        </div>
-    );
+    if (loading) return <Loader />;
 
     return (
         <>
@@ -148,9 +145,26 @@ const SalesHistory = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {filteredSales.map((sale) => (
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan="7" className="px-8 py-20 text-center">
+                                            <Loader className="min-h-[200px]" />
+                                        </td>
+                                    </tr>
+                                ) : filteredSales.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="7" className="px-6 py-20 text-center">
+                                            <div className="flex flex-col items-center">
+                                                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-dashed border-slate-200">
+                                                    <History className="text-slate-300" size={24} />
+                                                </div>
+                                                <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">No transactions found</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : filteredSales.map((sale) => (
                                     <React.Fragment key={sale._id}>
-                                        <tr key={sale._id} className="hover:bg-slate-50/50 transition-colors group">
+                                        <tr className="hover:bg-slate-50/50 transition-colors group">
                                             <td className="px-6 py-5">
                                                 <div className="flex items-center gap-3">
                                                     <button
@@ -291,18 +305,6 @@ const SalesHistory = () => {
                                         )}
                                     </React.Fragment>
                                 ))}
-                                {filteredSales.length === 0 && (
-                                    <tr>
-                                        <td colSpan="7" className="px-6 py-20 text-center">
-                                            <div className="flex flex-col items-center">
-                                                <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-dashed border-slate-200">
-                                                    <History className="text-slate-300" size={24} />
-                                                </div>
-                                                <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">No transactions found</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )}
                             </tbody>
                         </table>
                     </div>

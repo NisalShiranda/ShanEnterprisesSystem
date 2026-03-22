@@ -13,6 +13,7 @@ import {
     X,
     UserCircle
 } from 'lucide-react';
+import Loader from '../components/Loader';
 
 const Customers = () => {
     const [customers, setCustomers] = useState([]);
@@ -150,7 +151,24 @@ const Customers = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {filteredCustomers.map((customer) => (
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="4" className="px-6 py-20 text-center">
+                                        <Loader className="min-h-[200px]" />
+                                    </td>
+                                </tr>
+                            ) : filteredCustomers.length === 0 ? (
+                                <tr>
+                                    <td colSpan="4" className="px-6 py-20 text-center">
+                                        <div className="flex flex-col items-center">
+                                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-dashed border-slate-200">
+                                                <Users className="text-slate-300" size={24} />
+                                            </div>
+                                            <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">No clients found</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : filteredCustomers.map((customer) => (
                                 <tr key={customer._id} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="px-6 py-5">
                                         <div className="flex items-center gap-4">
@@ -203,18 +221,6 @@ const Customers = () => {
                                     </td>
                                 </tr>
                             ))}
-                            {filteredCustomers.length === 0 && !loading && (
-                                <tr>
-                                    <td colSpan="4" className="px-6 py-20 text-center">
-                                        <div className="flex flex-col items-center">
-                                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-dashed border-slate-200">
-                                                <Users className="text-slate-300" size={24} />
-                                            </div>
-                                            <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">No clients found</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
                         </tbody>
                     </table>
                 </div>

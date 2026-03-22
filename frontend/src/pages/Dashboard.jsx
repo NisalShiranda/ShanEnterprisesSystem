@@ -11,6 +11,7 @@ import {
     LayoutDashboard
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import Loader from '../components/Loader';
 
 const SimpleStatCard = ({ title, value, icon: Icon, colorClass }) => (
     <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm transition-all duration-300">
@@ -49,11 +50,7 @@ const Dashboard = () => {
         return () => clearInterval(timer);
     }, []);
 
-    if (loading) return (
-        <div className="flex items-center justify-center min-h-[50vh]">
-            <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        </div>
-    );
+    if (loading) return <Loader />;
 
     const greeting = () => {
         const hour = currentTime.getHours();

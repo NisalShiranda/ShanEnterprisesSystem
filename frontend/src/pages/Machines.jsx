@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { Plus, Edit2, Trash2, Search, Filter } from 'lucide-react';
+import Loader from '../components/Loader';
 
 const Machines = () => {
     const [inventory, setInventory] = useState([]);
@@ -182,7 +183,9 @@ const Machines = () => {
                         <tbody className="divide-y divide-slate-100">
                             {loading ? (
                                 <tr>
-                                    <td colSpan="7" className="text-center py-10 text-slate-500">Loading inventory...</td>
+                                    <td colSpan="7" className="text-center py-10">
+                                        <Loader className="min-h-[200px]" />
+                                    </td>
                                 </tr>
                             ) : filteredInventory.length === 0 ? (
                                 <tr>

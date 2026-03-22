@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
 import { Calendar, Plus, RefreshCw, Printer, User, HardHat, DollarSign, History, ChevronRight, CheckCircle2, Clock, Trash2, Search, X } from 'lucide-react';
+import Loader from '../components/Loader';
 
 const Rentals = () => {
     const [rentals, setRentals] = useState([]);
@@ -245,8 +246,8 @@ const Rentals = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {loading ? (
-                        <div className="col-span-full py-20 flex justify-center">
-                            <div className="w-10 h-10 border-4 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="col-span-full py-10">
+                            <Loader />
                         </div>
                     ) : rentals.length === 0 ? (
                         <div className="col-span-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl py-20 text-center">
