@@ -22,7 +22,22 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+    'http://localhost:5173', // Local development
+    'https://your-frontend-url.onrender.com' // Replace with your Render frontend URL later
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            return callback(null, true); // For now, keep it open if you're testing, or set to false for strictness
+        }
+        return callback(null, true);
+    },
+    credentials: true
+}));
 app.use(bodyParser.json());
 
 // Global Diagnostic Route
