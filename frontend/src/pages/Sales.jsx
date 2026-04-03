@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Search, Plus, Filter, LayoutGrid, List, FileText, CheckCircle, Package, Receipt, Truck, QrCode } from 'lucide-react';
+import { Search, Plus, Filter, LayoutGrid, List, FileText, CheckCircle, Package, Receipt, Truck, QrCode, ArrowLeft, Printer, HardHat, ShoppingCart, Trash2, Minus } from 'lucide-react';
 import Loader from '../components/Loader';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
