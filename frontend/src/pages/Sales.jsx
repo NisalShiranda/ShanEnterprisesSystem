@@ -79,6 +79,7 @@ const Sales = () => {
             setCart([...cart, {
                 id: item._id,
                 name: item.name,
+                description: item.description,
                 price: item.price,
                 quantity: 1,
                 maxStock: item.stock,
@@ -124,6 +125,7 @@ const Sales = () => {
                     part: i.type === 'part' ? i.id : null,
                     machine: i.type === 'machine' ? i.id : null,
                     name: i.name,
+                    description: i.description,
                     price: i.price,
                     quantity: i.quantity
                 })),
@@ -294,7 +296,12 @@ const Sales = () => {
                                         </>
                                     ) : (
                                         <>
-                                            <td className="py-4 px-2 text-sm font-black text-slate-800 tracking-tight uppercase text-left">{item.name}</td>
+                                            <td className="py-4 px-2 text-left">
+                                                <p className="text-sm font-black text-slate-800 tracking-tight uppercase">{item.name}</p>
+                                                {item.description && (
+                                                    <p className="text-[10px] text-slate-400 font-bold mt-1 leading-tight italic">{item.description}</p>
+                                                )}
+                                            </td>
                                             <td className="py-4 px-2 text-center text-sm font-black text-slate-900">{item.quantity}</td>
                                             <td className="py-4 px-2 text-right text-sm font-medium text-slate-600">{item.price.toLocaleString()}</td>
                                             <td className="py-4 px-2 text-right text-sm font-black text-slate-900 text-right">{(item.price * item.quantity).toLocaleString()}</td>
