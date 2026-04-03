@@ -244,95 +244,142 @@ const Rentals = () => {
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-8">
                     {loading ? (
-                        <div className="col-span-full py-10">
+                        <div className="py-10">
                             <Loader />
                         </div>
                     ) : rentals.length === 0 ? (
-                        <div className="col-span-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl py-20 text-center">
+                        <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl py-20 text-center">
                             <Calendar className="mx-auto text-slate-300 mb-4" size={40} />
                             <p className="text-xs font-black text-slate-400 uppercase tracking-widest">No active rental contracts found</p>
                         </div>
-                    ) : rentals.map(rental => {
+                    ) : Object.values(rentals.reduce((acc, rental) => {
+                        const customer = rental.customerName;
+                        if (!acc[customer]) {
+                            acc[customer] = {
+                                name: customer,
+                                rentals: [],
+                                totalBilled: 0,
+                                totalPaid: 0,
+                                totalBalance: 0
+                            };
+                        }
                         const { totalBilled, balance } = calculateBalance(rental);
-                        return (
-                            <div key={rental._id} className="group bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden hover:border-slate-300 transition-all">
-                                <div className="p-6 border-b border-slate-50 flex justify-between items-start">
-                                    <div className="space-y-1">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 bg-slate-900 text-white rounded-xl flex items-center justify-center">
-                                                <HardHat size={16} />
-                                            </div>
-                                            <h3 className="text-lg font-black text-slate-900 tracking-tight leading-none uppercase">{rental.machine?.name}</h3>
-                                        </div>
-                                        <p className="text-xs font-bold text-slate-400 uppercase flex items-center gap-1.5 ml-0.5">
-                                            <User size={12} strokeWidth={3} /> {rental.customerName}
+                        acc[customer].rentals.push({ ...rental, totalBilled, balance });
+                        acc[customer].totalBilled += totalBilled;
+                        acc[customer].totalPaid += (rental.totalPaid || 0);
+                        acc[customer].totalBalance += balance;
+                        return acc;
+                    }, {})).map(group => (
+                        <div key={group.name} className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden hover:border-slate-200 transition-all">
+                            {/* Customer Header Summary */}
+                            <div className="p-8 bg-slate-50/50 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-slate-200">
+                                        <User size={28} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase leading-none">{group.name}</h3>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2 flex items-center gap-2">
+                                            <Package size={14} className="text-slate-300" /> {group.rentals.length} Active {group.rentals.length === 1 ? 'Contract' : 'Contracts'}
                                         </p>
                                     </div>
-                                    <span className={`px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest border ${rental.status === 'Active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-100'}`}>
-                                        {rental.status}
-                                    </span>
-                                    <button
-                                        onClick={() => handleDelete(rental._id)}
-                                        className="ml-2 p-2 text-slate-300 hover:text-rose-500 transition-colors"
-                                        title="Delete Rental"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
                                 </div>
 
-                                <div className="px-6 py-5 bg-slate-50/50 space-y-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-1">
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Billed</p>
-                                            <p className="text-sm font-black text-slate-900 tracking-tighter italic">LKR {totalBilled.toLocaleString()}</p>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Total Paid</p>
-                                            <p className="text-sm font-black text-emerald-600 tracking-tighter italic">LKR {(rental.totalPaid || 0).toLocaleString()}</p>
-                                        </div>
+                                <div className="flex items-center gap-8 bg-white px-8 py-4 rounded-3xl border border-slate-100 shadow-sm">
+                                    <div className="text-center md:text-left">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Billed</p>
+                                        <p className="text-sm font-black text-slate-900">LKR {group.totalBilled.toLocaleString()}</p>
                                     </div>
-
-                                    <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
-                                        <div>
-                                            <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Current Balance Due</p>
-                                            <p className={`text-xl font-black tracking-tighter italic ${balance > 0 ? 'text-rose-600 underline decoration-rose-200 decoration-4' : 'text-emerald-500'}`}>
-                                                LKR {balance.toLocaleString()}
-                                            </p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Monthly</p>
-                                            <p className="text-xs font-black text-slate-600">LKR {rental.monthlyRate?.toLocaleString()}</p>
-                                        </div>
+                                    <div className="w-px h-8 bg-slate-100 hidden md:block"></div>
+                                    <div className="text-center md:text-left">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Paid</p>
+                                        <p className="text-sm font-black text-emerald-600">LKR {group.totalPaid.toLocaleString()}</p>
                                     </div>
-                                </div>
-
-                                <div className="p-4 grid grid-cols-2 gap-3">
-                                    <button
-                                        onClick={() => {
-                                            setSelectedRental(rental);
-                                            setShowHistoryModal(true);
-                                        }}
-                                        className="flex items-center justify-center gap-2 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition text-[10px] font-black uppercase tracking-widest"
-                                    >
-                                        <History size={14} />
-                                        History
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setSelectedRental(rental);
-                                            setShowPaymentModal(true);
-                                        }}
-                                        className="flex items-center justify-center gap-2 py-2.5 bg-black text-white rounded-xl hover:bg-slate-800 transition text-[10px] font-black uppercase tracking-widest shadow-lg shadow-slate-200"
-                                    >
-                                        <DollarSign size={14} />
-                                        Pay Now
-                                    </button>
+                                    <div className="w-px h-8 bg-slate-100 hidden md:block"></div>
+                                    <div className="text-center md:text-left">
+                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Balance Due</p>
+                                        <p className={`text-lg font-black italic tracking-tighter ${group.totalBalance > 0 ? 'text-rose-600' : 'text-emerald-500'}`}>
+                                            LKR {group.totalBalance.toLocaleString()}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        );
-                    })}
+
+                            {/* Machines Table */}
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead className="bg-slate-50/30">
+                                        <tr>
+                                            <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Asset Details</th>
+                                            <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Monthly Rate</th>
+                                            <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Balance</th>
+                                            <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-50">
+                                        {group.rentals.map(rental => (
+                                            <tr key={rental._id} className="group/row hover:bg-slate-50/50 transition-colors">
+                                                <td className="px-8 py-5">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-slate-100 text-slate-500 rounded-xl flex items-center justify-center group-hover/row:bg-slate-900 group-hover/row:text-white transition-all">
+                                                            <HardHat size={18} />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-black text-slate-900 uppercase tracking-tight">{rental.machine?.name}</p>
+                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Started: {new Date(rental.startDate).toLocaleDateString()}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-5">
+                                                    <p className="text-sm font-black text-slate-600 italic">LKR {rental.monthlyRate?.toLocaleString()}</p>
+                                                </td>
+                                                <td className="px-8 py-5">
+                                                    <div className="flex flex-col">
+                                                        <p className={`text-sm font-black italic tracking-tighter ${rental.balance > 0 ? 'text-rose-600 underline decoration-rose-100' : 'text-emerald-500'}`}>
+                                                            LKR {rental.balance.toLocaleString()}
+                                                        </p>
+                                                        <p className="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">Billed: LKR {rental.totalBilled.toLocaleString()}</p>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-5 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedRental(rental);
+                                                                setShowHistoryModal(true);
+                                                            }}
+                                                            className="p-2.5 text-slate-400 hover:text-slate-900 bg-white border border-slate-100 rounded-xl hover:border-slate-300 transition-all shadow-sm"
+                                                            title="Billing History"
+                                                        >
+                                                            <History size={16} />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedRental(rental);
+                                                                setShowPaymentModal(true);
+                                                            }}
+                                                            className="flex items-center gap-2 px-4 py-2.5 bg-black text-white rounded-xl hover:bg-slate-800 transition-all text-[10px] font-black uppercase tracking-widest shadow-lg shadow-slate-200"
+                                                        >
+                                                            <DollarSign size={14} /> Pay
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(rental._id)}
+                                                            className="p-2.5 text-slate-300 hover:text-rose-500 transition-colors"
+                                                            title="Terminate Contract"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
                 {/* New Rental Modal */}
