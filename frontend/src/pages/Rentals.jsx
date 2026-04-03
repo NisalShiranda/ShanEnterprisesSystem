@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios';
-import { Calendar, Plus, RefreshCw, Printer, User, HardHat, DollarSign, History, ChevronRight, CheckCircle2, Clock, Trash2, Search, X } from 'lucide-react';
+import { Calendar, Plus, RefreshCw, Printer, User, HardHat, DollarSign, History, ChevronRight, CheckCircle2, Clock, Trash2, Search, X, Package } from 'lucide-react';
 import Loader from '../components/Loader';
 
 const Rentals = () => {
