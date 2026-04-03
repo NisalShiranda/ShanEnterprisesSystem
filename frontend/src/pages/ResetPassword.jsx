@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import api from '../api/axios';
 import { Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import Loader from '../components/Loader';
 
 const ResetPassword = () => {
     const { token } = useParams();
@@ -138,9 +139,7 @@ const ResetPassword = () => {
                                     disabled={loading}
                                     className="w-full py-4 bg-black hover:bg-slate-800 text-white font-black text-xs uppercase tracking-[0.3em] rounded-2xl shadow-2xl shadow-slate-200 transition-all active:scale-[0.98] disabled:opacity-50 mt-4 flex items-center justify-center h-14"
                                 >
-                                    {loading ? (
-                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    ) : 'Apply Credentials'}
+                                     {loading ? <Loader mode="inline" /> : 'Apply Credentials'}
                                 </button>
                             </form>
                         </>
